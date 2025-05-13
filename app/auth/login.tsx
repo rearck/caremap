@@ -1,0 +1,76 @@
+import { Text, View } from "react-native";
+import { Button, ButtonText } from "@/components/ui/button";
+
+import { Image } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+export default function Login() {
+  return (
+    <LinearGradient colors={["#F1FDFF", "#DCFBFF"]} style={{ flex: 1 }}>
+      <SafeAreaView className="flex-1 justify-center px-6 ">
+        <Image
+          source={require("@/assets/careMap-logo.png")}
+          style={{ width: 120, height: 60, marginBottom: 30 }}
+          resizeMode="contain"
+        />
+
+        <Image
+          source={require("../../assets/intro4.png")}
+          className="w-[400px] h-[300px] rounded-lg"
+          resizeMode="contain"
+        />
+
+        <Text className="text-[30px] text-[#49AFBE] font-bold text-left py-4 ">
+          Welcome
+        </Text>
+
+        <Text className="text-left text-base py-4 ">
+          Teams of family members, doctors, nurses, and case managers work
+          together to care for children with complex medical issues.
+        </Text>
+
+        <View className="flex items-left  py-4">
+          <Button
+            variant="solid"
+            action="secondary"
+            className="bg-white border border-gray-300 w-full rounded-sm my-2 h-14"
+            size="md"
+          >
+            <View className="flex-row items-center px-4 w-full">
+              <Image
+                source={require("@/assets/apple-logo.png")}
+                className="w-6 h-6 mr-3"
+                resizeMode="contain"
+              />
+              <ButtonText className="text-lg text-black text-left flex-1">
+                Continue with Apple
+              </ButtonText>
+            </View>
+          </Button>
+
+          <Button
+            variant="solid"
+            action="secondary"
+            className="bg-white border border-gray-300 w-full rounded-sm my-4 h-14"
+          >
+            <View className="flex-row items-center px-4 w-full">
+              <Image
+                source={require("@/assets/google-logo.png")}
+                className="w-6 h-6 mr-3"
+                resizeMode="contain"
+              />
+              <ButtonText className="text-lg text-black text-left flex-1">
+                Continue with Google
+              </ButtonText>
+            </View>
+          </Button>
+
+          <View className="flex-row justify-center items-center mt-10">
+            <Text className="text-[#0973A8] mr-2">Terms of Use |</Text>
+            <Text className="text-[#0973A8]">Privacy Policy</Text>
+          </View>
+        </View>
+      </SafeAreaView>
+    </LinearGradient>
+  );
+}

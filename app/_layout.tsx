@@ -8,9 +8,8 @@ const RootLayout = () => {
     <GluestackUIProvider mode="light">
       <Stack
         screenOptions={{
-          headerStyle: {
-            backgroundColor: "#F1FDFF",
-          },
+          headerShown: false,
+
           headerBackVisible: false,
         }}
       />
