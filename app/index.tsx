@@ -4,8 +4,9 @@ import { View } from "react-native";
 
 const Index = () => {
   return (
+    
     <View className="flex-1 items-center justify-center">
-      <Redirect href="/launch" />
+      <Redirect href="/public/launch" />
     </View>
   );
 };
