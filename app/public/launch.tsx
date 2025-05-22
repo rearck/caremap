@@ -23,7 +23,7 @@ export default function Landing() {
           action="secondary"
           onPress={() => router.push("/public/onboarding")}
         >
-          <ButtonText className="text-lg text-white font-bold">Let's start</ButtonText>
+          <ButtonText className="text-lg text-white font-bold">Get Started</ButtonText>
         </Button>
       </SafeAreaView>
     </LinearGradient>

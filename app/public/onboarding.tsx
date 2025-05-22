@@ -5,7 +5,8 @@ import { useRouter } from "expo-router";
 import { Button, ButtonText } from "@/components/ui/button";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { Slide } from "@/interface/slide";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Slide } from "@/services/common/interface";
 
 const slides: Slide[] = [
   {
@@ -61,7 +62,10 @@ export default function Onboarding() {
               className="bg-[#49AFBE] py-3 px-7  rounded-[30px] h-[45px]"
               variant="solid"
               action="secondary"
-              onPress={() => router.push("/auth/login")}
+              onPress={async () => {
+                await AsyncStorage.setItem("isFirstLaunch", "true");
+                router.push("/auth/login");
+              }}
             >
               <ButtonText className="  text-white  text-lg  font-semibold">
                 Skip
@@ -72,7 +76,10 @@ export default function Onboarding() {
               className="bg-[#49AFBE] w-[150px] rounded-[30px] h-[45px]"
               variant="solid"
               action="secondary"
-              onPress={() => router.push("/auth/login")}
+              onPress={async () => {
+                await AsyncStorage.setItem("isFirstLaunch", "true");
+                router.push("/auth/login");
+              }}
             >
               <ButtonText className="text-lg text-white">
                 Get Started
