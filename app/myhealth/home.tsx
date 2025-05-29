@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Image, Button } from "react-native";
 import { router } from "expo-router";
-import { UserInfo } from "@/services/common/types";
 import {
   initializeSession,
   signOut,
 } from "@/services/auth-service/google-auth";
+import { User } from "@/services/database/migrations/v1/schema_v1";
 
 const Home = () => {
-  const [user, setUser] = useState<UserInfo | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
