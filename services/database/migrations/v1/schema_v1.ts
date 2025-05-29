@@ -16,3 +16,8 @@ export interface Patient {
   gender?: string;
   birthdate?: string;
 }
+
+export const tables = {
+  USER: 'users',
+  PATIENT: 'patients',
+}
