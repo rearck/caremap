@@ -1,18 +1,31 @@
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "@/global.css";
+import { useDatabase } from "@/services/database/db";
+import { logger } from "@/services/logging/logger";
+import { SQLITE_DB_NAME } from "@/utils/config";
 import { Stack } from "expo-router";
+import { SQLiteProvider } from "expo-sqlite";
 import React from "react";
 
 const RootLayout = () => {
   return (
-    <GluestackUIProvider mode="light">
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          headerBackVisible: false,
-        }}
-      />
-    </GluestackUIProvider>
+    <SQLiteProvider
+      databaseName={SQLITE_DB_NAME}
+      onInit={async (db) => {
+        const { runMigrations } = useDatabase(db);
+        await runMigrations();
+        logger.debug(`Migration completed.`);
+      }}
+    >
+      <GluestackUIProvider mode="light">
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            headerBackVisible: false,
+          }}
+        />
+      </GluestackUIProvider>
+    </SQLiteProvider>
   );
 };
 

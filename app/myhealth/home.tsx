@@ -1,23 +1,51 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Image, Button } from "react-native";
-import { router } from "expo-router";
 import {
   initializeSession,
   signOut,
 } from "@/services/auth-service/google-auth";
-import { User } from "@/services/database/migrations/v1/schema_v1";
+import { PatientService } from "@/services/database/services/PatientService";
+import { UserService } from "@/services/database/services/UserService";
+import { Patient, User } from "@/services/database/migrations/v1/schema_v1";
+import { logger } from "@/services/logging/logger";
+import { ROUTES } from "@/utils/route";
+import { router } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
+import React, { useEffect, useState } from "react";
+import { Button, Image, Text, View } from "react-native";
 
 const Home = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [patient, setPatient] = useState<Patient | null>(null);
+
+  const db = useSQLiteContext();
+  const userService = new UserService(db);
+  const patientService = new PatientService(db);
 
   useEffect(() => {
+    logger.debug(`DB Path : "${db.databasePath}"`);
     initializeSession(setUser).finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    const handleUserPatientState = async () => {
+      if (!user) return;
+      try {
+        await userService.createUser(user);
+        if (!patient) {
+          await patientService.createPatient(user);
+          const patientData = await patientService.getPatientByUserId(user.id);
+          setPatient(patientData);
+        }
+      } catch (error) {
+        logger.debug("Error: ", error);
+      }
+    };
+    handleUserPatientState();
+  }, [user]);
+
   const handleSignOut = async () => {
     await signOut();
-    router.replace("/auth/login");
+    router.replace(`${ROUTES.LOGIN}`);
   };
 
   if (loading || !user) {
@@ -36,6 +64,8 @@ const Home = () => {
       />
       <Text>Name: {user.name}</Text>
       <Text>Email: {user.email}</Text>
+      <Text>Patient name: {patient?.name}</Text>
+
       <Button title="Sign Out" onPress={handleSignOut} />
     </View>
   );

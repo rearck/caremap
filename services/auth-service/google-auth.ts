@@ -1,11 +1,12 @@
+import { AuthTokens } from "@/services/common/types";
+import { logger } from "@/services/logging/logger";
+import { googleConfig, TOKEN_EXPIRY } from "@/utils/config";
+import { ROUTES } from "@/utils/route";
+import { AuthSessionResult } from "expo-auth-session";
+import * as Google from "expo-auth-session/providers/google";
+import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-import { AuthTokens } from "@/services/common/types";
-import { googleConfig, TOKEN_EXPIRY } from "@/utils/config";
-import * as Google from "expo-auth-session/providers/google";
-import { AuthSessionResult } from "expo-auth-session";
-import { router } from "expo-router";
-import { logger } from "@/services/logging/logger";
 import { User } from "../database/migrations/v1/schema_v1";
 
 
@@ -43,7 +44,7 @@ export const handleGoogleSignIn = async (
 
         await saveUser(userInfo);
 
-        router.replace("/myhealth/home");
+        router.replace(`${ROUTES.MY_HEALTH}`);
     }
 };
 
@@ -105,12 +106,12 @@ export const initializeSession = async (
         } else {
             console.warn("❌ User data missing. Signing out...");
             await signOut();
-            router.replace("/auth/login");
+            router.replace(`${ROUTES.LOGIN}`);
         }
     } else {
         console.warn("❌ Session invalid. Signing out...");
         await signOut();
-        router.replace("/auth/login");
+        router.replace(`${ROUTES.LOGIN}`);
     }
 };
 
@@ -227,9 +228,17 @@ export const refreshAccessToken = async (refresh_token: string): Promise<boolean
 };
 
 // --------- Get User
-export const getUserFromStorage = async () => {
-    const userJson = await SecureStore.getItemAsync("user");
-    return userJson ? JSON.parse(userJson) : null;
+export const getUserFromStorage = async (): Promise<User> => {
+    const userJsonStr = await SecureStore.getItemAsync("user");
+    // return userJson ? JSON.parse(userJson) : null;
+    const userJson = userJsonStr ? JSON.parse(userJsonStr) : null;
+
+    return {
+        id: userJson.id,
+        name: userJson.name,
+        email: userJson.email,
+        picture: userJson.picture
+    }
 };
 
 // --------- Clear All
