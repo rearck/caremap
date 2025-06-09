@@ -4,6 +4,8 @@ import {
   getGoogleAuthRequest,
   handleGoogleSignIn,
 } from "@/services/auth-service/google-auth";
+import palette from "@/theme/color";
+// import colors from "@/utils/theme/color";
 import { LinearGradient } from "expo-linear-gradient";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect } from "react";
@@ -27,7 +29,10 @@ export default function Login() {
   }, [response]);
 
   return (
-    <LinearGradient colors={["#F1FDFF", "#DCFBFF"]} style={{ flex: 1 }}>
+    <LinearGradient
+      colors={[palette.gradientStart, palette.gradientEnd]}
+      style={{ flex: 1 }}
+    >
       <SafeAreaView className="flex-1 justify-center px-6 ">
         <Image
           source={require("@/assets/images/careMap-logo.png")}
@@ -41,7 +46,10 @@ export default function Login() {
           resizeMode="contain"
         />
 
-        <Text className="text-[30px] text-[#49AFBE] font-bold text-left py-4 ">
+        <Text
+          style={{ color: palette.primary }}
+          className="text-[30px]  font-bold text-left py-4 "
+        >
           Welcome
         </Text>
 
@@ -89,12 +97,15 @@ export default function Login() {
           </Button>
 
           <View className="flex-row justify-center items-center mt-10">
-            <Text className="text-[#0973A8]">Terms of Use</Text>
+            <Text style={{ color: palette.primary }}>Terms of Use</Text>
             <Divider
+              style={{ backgroundColor: palette.primary }}
               orientation="vertical"
-              className="mx-2 h-[16px] bg-[#0973A8]"
+              className="mx-2 h-[16px] "
             />
-            <Text className="text-[#0973A8]">Privacy Policy</Text>
+            <Text style={{ color: palette.primary }} >
+              Privacy Policy
+            </Text>
           </View>
         </View>
       </SafeAreaView>
