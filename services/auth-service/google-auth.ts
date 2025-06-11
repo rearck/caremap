@@ -43,7 +43,7 @@ export const handleGoogleSignIn = async (
 
         await saveUser(userInfo);
 
-        router.replace("/myhealth/home");
+        router.replace("/home/myHealth");
     }
 };
 
@@ -229,6 +229,8 @@ export const refreshAccessToken = async (refresh_token: string): Promise<boolean
 // --------- Get User
 export const getUserFromStorage = async () => {
     const userJson = await SecureStore.getItemAsync("user");
+    // console.log(userJson)
+
     return userJson ? JSON.parse(userJson) : null;
 };
 
