@@ -4,8 +4,7 @@ import {
   getGoogleAuthRequest,
   handleGoogleSignIn,
 } from "@/services/auth-service/google-auth";
-import palette from "@/theme/color";
-// import colors from "@/utils/theme/color";
+import palette from "@/utils/theme/color";
 import { LinearGradient } from "expo-linear-gradient";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect } from "react";
@@ -103,9 +102,7 @@ export default function Login() {
               orientation="vertical"
               className="mx-2 h-[16px] "
             />
-            <Text style={{ color: palette.primary }} >
-              Privacy Policy
-            </Text>
+            <Text style={{ color: palette.primary }}>Privacy Policy</Text>
           </View>
         </View>
       </SafeAreaView>

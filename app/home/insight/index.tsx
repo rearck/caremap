@@ -13,5 +13,5 @@ function insight() {
 
 export default insight;
 
-import React from "react";import palette from "@/theme/color";
-
+import React from "react";
+import palette from "@/utils/theme/color";
