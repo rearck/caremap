@@ -7,7 +7,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Slide } from "@/services/common/interface";
-import palette from "@/theme/color";
+import palette from "@/utils/theme/color";
+import { ROUTES } from "@/utils/route";
 
 const slides: Slide[] = [
   {
@@ -44,7 +45,9 @@ export default function Onboarding() {
           resizeMode="contain"
         />
 
-        <Text className="text-[28px] font-semibold text-center mb-[80px] text-[#058295]">
+        <Text
+          style={{ color: palette.primary }}
+        className="text-[28px] font-semibold text-center mb-[80px] ">
           {slides[currentSlide].title}
         </Text>
 
@@ -89,7 +92,7 @@ export default function Onboarding() {
               action="secondary"
               onPress={async () => {
                 await AsyncStorage.setItem("isFirstLaunch", "true");
-                router.push("/auth/login");
+                router.push(ROUTES.LOGIN);
               }}
             >
               <ButtonText className="text-lg text-white">
