@@ -1,14 +1,17 @@
-import { SQLiteDatabase } from 'expo-sqlite';
-import { logger } from '../logging/logger';
+import { logger } from '@/services/logging/logger';
+import { SQLiteBindParams, SQLiteDatabase } from 'expo-sqlite';
 
 export abstract class BaseModel<T> {
 
-    protected db: SQLiteDatabase;
+    protected db!: SQLiteDatabase;
     protected tableName: string;
 
-    constructor(db: SQLiteDatabase, tableName: string) {
-        this.db = db;
+    constructor(tableName: string) {
         this.tableName = tableName;
+    }
+
+    setDB(db: SQLiteDatabase) {
+        this.db = db;
     }
 
     // Wrapper method to run any SQL query safely inside a transaction using prepared statements
@@ -37,6 +40,23 @@ export abstract class BaseModel<T> {
         return result;
     }
 
+    async getFirstByFields(fields: Partial<T>): Promise<T | null> {
+        if (!this.db) throw new Error('DB instance not set in BaseModel');
+
+        // Filter out undefined fields to prevent SQLite errors
+        const entries = Object.entries(fields).filter(([_, value]) => value !== undefined);
+        const keys = entries.map(([key]) => key);
+        const values = entries.map(([_, value]) => value) as SQLiteBindParams;
+
+        if (keys.length === 0) return null;
+
+        const conditions = keys.map((key) => `${key} = ?`).join(' AND ');
+        const sql = `SELECT * FROM ${this.tableName} WHERE ${conditions} LIMIT 1`;
+
+        const result = await this.db.getFirstAsync<T>(sql, values);
+        return result ?? null;
+    }
+
     async getByFields(fields: Partial<T>): Promise<T[]> {
         const keys = Object.keys(fields);
         const values = Object.values(fields);
@@ -47,17 +67,18 @@ export abstract class BaseModel<T> {
         return result;
     }
 
-    async insert(data: Partial<T>): Promise<void> {
+    async insert(data: Partial<T>): Promise<any> {
         const keys = Object.keys(data);
         const values = Object.values(data);
         const placeholders = keys.map(() => '?').join(',');
         logger.debug(`Data: `, data);
 
         const sql = `INSERT INTO ${this.tableName} (${keys.join(',')}) VALUES (${placeholders})`;
-        await this.run(sql, values);
+        let result = await this.run(sql, values);
+        return result;
     }
 
-    async insertAll(data: Partial<T>[]): Promise<void> {
+    async insertAll(data: Partial<T>[]): Promise<any> {
         if (data.length === 0) return;
 
         const keys = Object.keys(data[0]);
@@ -66,13 +87,14 @@ export abstract class BaseModel<T> {
         const values = data.flatMap(row => keys.map(key => row[key as keyof T]));
 
         const sql = `INSERT INTO ${this.tableName} (${keys.join(',')}) VALUES ${allPlaceholders};`;
-        await this.run(sql, values);
+        let result = await this.run(sql, values);
+        return result;
     }
 
     async updateByFields(
         data: Partial<T>,         // fields to update
         conditions: Partial<T>    // where clause conditions
-    ): Promise<void> {
+    ): Promise<any> {
         const setKeys = Object.keys(data);
         const setValues = Object.values(data);
         const setClause = setKeys.map(key => `${key} = ?`).join(', ');
@@ -80,6 +102,10 @@ export abstract class BaseModel<T> {
         const whereKeys = Object.keys(conditions);
         const whereValues = Object.values(conditions);
         const whereClause = whereKeys.map(key => `${key} = ?`).join(' AND ');
+
+        if (!setKeys.length || !whereKeys.length) {
+            throw new Error("Update failed: missing update fields or conditions.");
+        }
 
         const sql = `UPDATE ${this.tableName} SET ${setClause} WHERE ${whereClause}`;
         const values = [...setValues, ...whereValues];

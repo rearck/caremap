@@ -1,3 +1,4 @@
+import { User } from "@/services//database/migrations/v1/schema_v1";
 import { AuthTokens } from "@/services/common/types";
 import { logger } from "@/services/logging/logger";
 import { googleConfig, TOKEN_EXPIRY } from "@/utils/config";
@@ -7,7 +8,6 @@ import * as Google from "expo-auth-session/providers/google";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-import { User } from "../database/migrations/v1/schema_v1";
 
 
 const IOS_CLIENT_ID = googleConfig.GOOGLE_IOS_CLIENT_ID;
@@ -89,8 +89,8 @@ export const scheduleTokenRefresh = async () => {
     }
 };
 
-export const initializeSession = async (
-    setUser: (user: User | null) => void
+export const initializeAuthSession = async (
+    setUserData: (user: User | null) => void
 ): Promise<void> => {
     logger.debug("🚀 Reinitializing MainView after reload...");
 
@@ -101,7 +101,7 @@ export const initializeSession = async (
         const storedUser = await getUserFromStorage();
         if (storedUser) {
             logger.debug("👤 Loaded user:", storedUser.email);
-            setUser(storedUser);
+            setUserData(storedUser);
             scheduleTokenRefresh(); // 🔁 Setup token refresh
         } else {
             console.warn("❌ User data missing. Signing out...");
@@ -229,16 +229,22 @@ export const refreshAccessToken = async (refresh_token: string): Promise<boolean
 
 // --------- Get User
 export const getUserFromStorage = async (): Promise<User> => {
+    let userInfo: User;
     const userJsonStr = await SecureStore.getItemAsync("user");
-    // return userJson ? JSON.parse(userJson) : null;
     const userJson = userJsonStr ? JSON.parse(userJsonStr) : null;
 
-    return {
+    if (!userJson) {
+        throw new Error("No Session User found !!");
+    }
+
+    userInfo = {
         id: userJson.id,
         name: userJson.name,
         email: userJson.email,
-        picture: userJson.picture
+        profile_picture_url: userJson.picture
     }
+
+    return userInfo;
 };
 
 // --------- Clear All

@@ -1,11 +1,10 @@
-import { SQLiteDatabase } from "expo-sqlite";
-import { BaseModel } from "../BaseModel";
-import { Patient, tables } from "../migrations/v1/schema_v1";
+import { BaseModel } from "@/services/database/BaseModel";
+import { Patient, tables } from "@/services/database/migrations/v1/schema_v1";
 
 export class PatientModel extends BaseModel<Patient> {
 
-  constructor(db: SQLiteDatabase) {
-    super(db, `${tables.PATIENT}`);
+  constructor() {
+    super(tables.PATIENT);
   }
 
 }
