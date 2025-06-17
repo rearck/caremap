@@ -1,14 +1,17 @@
-import { SQLiteDatabase } from 'expo-sqlite';
+import { SQLiteBindParams, SQLiteDatabase } from 'expo-sqlite';
 import { logger } from '../logging/logger';
 
 export abstract class BaseModel<T> {
 
-    protected db: SQLiteDatabase;
+    protected db!: SQLiteDatabase;
     protected tableName: string;
 
-    constructor(db: SQLiteDatabase, tableName: string) {
-        this.db = db;
+    constructor(tableName: string) {
         this.tableName = tableName;
+    }
+
+    setDB(db: SQLiteDatabase) {
+        this.db = db;
     }
 
     // Wrapper method to run any SQL query safely inside a transaction using prepared statements
@@ -35,6 +38,23 @@ export abstract class BaseModel<T> {
         const result = await this.db.getAllAsync<T>(sql);
         logger.debug("Result: ", result.toString());
         return result;
+    }
+
+    async getFirstByFields(fields: Partial<T>): Promise<T | null> {
+        if (!this.db) throw new Error('DB instance not set in BaseModel');
+
+        // Filter out undefined fields to prevent SQLite errors
+        const entries = Object.entries(fields).filter(([_, value]) => value !== undefined);
+        const keys = entries.map(([key]) => key);
+        const values = entries.map(([_, value]) => value) as SQLiteBindParams;
+
+        if (keys.length === 0) return null;
+
+        const conditions = keys.map((key) => `${key} = ?`).join(' AND ');
+        const sql = `SELECT * FROM ${this.tableName} WHERE ${conditions} LIMIT 1`;
+
+        const result = await this.db.getFirstAsync<T>(sql, values);
+        return result ?? null;
     }
 
     async getByFields(fields: Partial<T>): Promise<T[]> {

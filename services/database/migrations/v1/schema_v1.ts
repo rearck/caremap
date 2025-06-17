@@ -6,7 +6,7 @@ export interface User {
 };
 
 export interface Patient {
-  id?: number;
+  id: number;
   user_id: string;
   name: string;
   age?: number;

@@ -89,8 +89,8 @@ export const scheduleTokenRefresh = async () => {
     }
 };
 
-export const initializeSession = async (
-    setUser: (user: User | null) => void
+export const initializeAuthSession = async (
+    setUserData: (user: User | null) => void
 ): Promise<void> => {
     logger.debug("🚀 Reinitializing MainView after reload...");
 
@@ -101,7 +101,7 @@ export const initializeSession = async (
         const storedUser = await getUserFromStorage();
         if (storedUser) {
             logger.debug("👤 Loaded user:", storedUser.email);
-            setUser(storedUser);
+            setUserData(storedUser);
             scheduleTokenRefresh(); // 🔁 Setup token refresh
         } else {
             console.warn("❌ User data missing. Signing out...");

@@ -13,5 +13,4 @@ function track() {
 export default track;
 
 import React from "react";
-import palette from "@/theme/color";
-
+import palette from "@/utils/theme/color";
