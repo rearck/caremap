@@ -1,12 +1,13 @@
+import { User } from "@/services//database/migrations/v1/schema_v1";
+import { AuthTokens } from "@/services/common/types";
+import { logger } from "@/services/logging/logger";
+import { googleConfig, TOKEN_EXPIRY } from "@/utils/config";
+import { ROUTES } from "@/utils/route";
+import { AuthSessionResult } from "expo-auth-session";
+import * as Google from "expo-auth-session/providers/google";
+import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-import { AuthTokens } from "@/services/common/types";
-import { googleConfig, TOKEN_EXPIRY } from "@/utils/config";
-import * as Google from "expo-auth-session/providers/google";
-import { AuthSessionResult } from "expo-auth-session";
-import { router } from "expo-router";
-import { logger } from "@/services/logging/logger";
-import { User } from "../database/migrations/v1/schema_v1";
 
 
 const IOS_CLIENT_ID = googleConfig.GOOGLE_IOS_CLIENT_ID;
@@ -43,7 +44,7 @@ export const handleGoogleSignIn = async (
 
         await saveUser(userInfo);
 
-        router.replace("/home/myHealth");
+        router.replace(`${ROUTES.MY_HEALTH}`);
     }
 };
 
@@ -88,8 +89,8 @@ export const scheduleTokenRefresh = async () => {
     }
 };
 
-export const initializeSession = async (
-    setUser: (user: User | null) => void
+export const initializeAuthSession = async (
+    setUserData: (user: User | null) => void
 ): Promise<void> => {
     logger.debug("🚀 Reinitializing MainView after reload...");
 
@@ -100,17 +101,17 @@ export const initializeSession = async (
         const storedUser = await getUserFromStorage();
         if (storedUser) {
             logger.debug("👤 Loaded user:", storedUser.email);
-            setUser(storedUser);
+            setUserData(storedUser);
             scheduleTokenRefresh(); // 🔁 Setup token refresh
         } else {
             console.warn("❌ User data missing. Signing out...");
             await signOut();
-            router.replace("/auth/login");
+            router.replace(`${ROUTES.LOGIN}`);
         }
     } else {
         console.warn("❌ Session invalid. Signing out...");
         await signOut();
-        router.replace("/auth/login");
+        router.replace(`${ROUTES.LOGIN}`);
     }
 };
 
@@ -227,11 +228,23 @@ export const refreshAccessToken = async (refresh_token: string): Promise<boolean
 };
 
 // --------- Get User
-export const getUserFromStorage = async () => {
-    const userJson = await SecureStore.getItemAsync("user");
-    // console.log(userJson)
+export const getUserFromStorage = async (): Promise<User> => {
+    let userInfo: User;
+    const userJsonStr = await SecureStore.getItemAsync("user");
+    const userJson = userJsonStr ? JSON.parse(userJsonStr) : null;
 
-    return userJson ? JSON.parse(userJson) : null;
+    if (!userJson) {
+        throw new Error("No Session User found !!");
+    }
+
+    userInfo = {
+        id: userJson.id,
+        name: userJson.name,
+        email: userJson.email,
+        profile_picture_url: userJson.picture
+    }
+
+    return userInfo;
 };
 
 // --------- Clear All
