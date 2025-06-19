@@ -34,7 +34,7 @@ export default function HealthProfile() {
         setPatientData(patientData);
       } catch (err) {
         logger.debug("Failed to sync patient session:", err);
-        return ShowAlert("e", `${err}`);
+        return ShowAlert("e", `Failed to sync patient data.`);
       } finally {
         setLoading(false);
       }

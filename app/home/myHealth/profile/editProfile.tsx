@@ -109,7 +109,7 @@ export default function EditProfilePage() {
       router.replace(ROUTES.MY_HEALTH);
     } catch (err) {
       logger.debug(" Save Error: ", err);
-      ShowAlert("e", `${err}`);
+      ShowAlert("e", "Error saving or updating data.");
     }
   };
 
