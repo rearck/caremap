@@ -1,61 +1,50 @@
-import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Camera, ChevronDownIcon } from "lucide-react-native";
 import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
 import {
   Select,
-  SelectTrigger,
-  SelectInput,
-  SelectIcon,
-  SelectPortal,
   SelectBackdrop,
   SelectContent,
   SelectDragIndicator,
   SelectDragIndicatorWrapper,
+  SelectIcon,
+  SelectInput,
   SelectItem,
+  SelectPortal,
+  SelectTrigger,
 } from "@/components/ui/select";
-import { Patient } from "@/services/database/migrations/v1/schema_v1";
-import { useSQLiteContext } from "expo-sqlite";
-import { PatientModel } from "@/services/database/models/PatientModel";
-import { useRouter } from "expo-router";
-import { ROUTES } from "@/utils/route";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import { format, differenceInYears } from "date-fns";
-import { UserContext } from "@/context/UserContext";
 import { PatientContext } from "@/context/PatientContext";
+import { UserContext } from "@/context/UserContext";
+import { ShowAlert } from "@/services/common/ShowAlert";
+import { updatePatient } from "@/services/core/PatientService";
+import { Patient } from "@/services/database/migrations/v1/schema_v1";
+import { logger } from "@/services/logging/logger";
+import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
+import { differenceInYears, format } from "date-fns";
+import { useRouter } from "expo-router";
+import { Camera, ChevronDownIcon } from "lucide-react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function EditProfilePage() {
-  const { user, setUserData } = useContext(UserContext);
+  const { user } = useContext(UserContext);
   const { patient, setPatientData } = useContext(PatientContext);
   const [newPatient, setNewPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const db = useSQLiteContext();
-  const patientModel = new PatientModel(db);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   useEffect(() => {
-    const init = async () => {
-      await setUserData();
-    };
-    init();
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      setPatientData(user.id);
+    if (!patient) {
+      console.error("Error", "No patient found. Please try again.");
+      router.replace(ROUTES.MY_HEALTH);
+      return;
     }
-  }, [user]);
-
-  useEffect(() => {
-    if (user && patient) {
-      setNewPatient(patient);
-      setLoading(false);
-    }
-  }, [user, patient]);
+    setNewPatient(patient);
+    setLoading(false);
+  }, [patient]);
 
   const calculateAge = (
     birthdate: string | null | undefined
@@ -70,6 +59,7 @@ export default function EditProfilePage() {
       return null;
     }
   };
+
   const handleConfirm = (date: Date) => {
     const formatted = format(date, "yyyy-MM-dd");
     const age = calculateAge(formatted);
@@ -89,8 +79,14 @@ export default function EditProfilePage() {
   const handleSave = async () => {
     if (!user) return;
 
+    let updatedPatient;
+
     try {
-      await patientModel.updateByFields(
+      if (!patient?.id) {
+        throw new Error("Invalid patient ID.");
+      }
+
+      updatedPatient = await updatePatient(
         {
           age: newPatient?.age,
           weight: newPatient?.weight,
@@ -98,15 +94,22 @@ export default function EditProfilePage() {
           gender: newPatient?.gender,
           birthdate: newPatient?.birthdate,
         },
-        { user_id: user.id }
+        { id: patient?.id }
       );
 
-      await patientModel.getPatientByUserId(user.id);
-      console.log("Profile updated");
+      if (!updatedPatient) {
+        throw new Error("Error updating Patient Profile!");
+      }
+
+      setPatientData(updatedPatient);
+
+      // Temporary Alert - To be replaced with component
+      ShowAlert("i", "Patient data updated.");
 
       router.replace(ROUTES.MY_HEALTH);
     } catch (err) {
-      console.log(" Save Error: ", err);
+      logger.debug(" Save Error: ", err);
+      ShowAlert("e", "Error saving or updating data.");
     }
   };
 
@@ -117,6 +120,7 @@ export default function EditProfilePage() {
       </SafeAreaView>
     );
   }
+
   function LabeledDisplayField({
     label,
     value,
@@ -136,16 +140,14 @@ export default function EditProfilePage() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View
-      style={{backgroundColor: palette.primary}}
-      className="py-2">
+      <View style={{ backgroundColor: palette.primary }} className="py-2">
         <Text className="text-xl text-white font-bold text-center">
           Edit Profile
         </Text>
 
         <View className="flex-row mb-5 items-center justify-start px-4 ">
           <Avatar size="xl">
-            <AvatarImage source={{ uri: user.picture }} />
+            <AvatarImage source={{ uri: user.profile_picture_url }} />
             <View className="absolute bottom-0 right-0 bg-white rounded-full p-1 ">
               <Icon as={Camera} size="sm" className="text-black" />
             </View>
@@ -198,7 +200,6 @@ export default function EditProfilePage() {
         <View className="mb-4">
           <Text className="text-gray-500 text-sm mb-1">Weight (in Kg)</Text>
           <TextInput
-          
             className="border border-gray-300 rounded-lg p-3 text-gray-700"
             keyboardType="numeric"
             value={newPatient?.weight?.toString() ?? ""}
@@ -284,8 +285,7 @@ export default function EditProfilePage() {
         </View>
 
         <TouchableOpacity
-      style={{backgroundColor: palette.primary}}
-
+          style={{ backgroundColor: palette.primary }}
           className=" py-3 rounded-lg"
           onPress={handleSave}
         >
