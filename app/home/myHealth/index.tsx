@@ -5,7 +5,10 @@ import { Divider } from "@/components/ui/divider";
 import { EditIcon, Icon, ShareIcon } from "@/components/ui/icon";
 import { PatientContext } from "@/context/PatientContext";
 import { UserContext } from "@/context/UserContext";
-import { initializeSession } from "@/services/auth-service/google-auth";
+import { initializeAuthSession } from "@/services/auth-service/google-auth";
+import { syncPatientSession } from "@/services/auth-service/session-service";
+import { ShowAlert } from "@/services/common/ShowAlert";
+import { logger } from "@/services/logging/logger";
 import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
 import { Route, router } from "expo-router";
@@ -20,20 +23,24 @@ export default function HealthProfile() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    initializeSession(setUserData).finally(() => setLoading(false));
+    initializeAuthSession(setUserData).finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
-    const init = async () => {
-      await setUserData();
+    const sync = async () => {
+      try {
+        if (!user) return;
+        const patientData = await syncPatientSession(user);
+        setPatientData(patientData);
+      } catch (err) {
+        logger.debug("Failed to sync patient session:", err);
+        return ShowAlert("e", `Failed to sync patient data.`);
+      } finally {
+        setLoading(false);
+      }
     };
-    init();
-  }, []);
 
-  useEffect(() => {
-    if (user) {
-      setPatientData(user.id).finally(() => setLoading(false));
-    }
+    sync();
   }, [user]);
 
   const medicalTiles = [
@@ -112,7 +119,7 @@ export default function HealthProfile() {
 
         <View className="flex-row items-center justify-between">
           <Avatar size="xl">
-            <AvatarImage source={{ uri: user.picture }} />
+            <AvatarImage source={{ uri: user.profile_picture_url }} />
             <View className="absolute bottom-0 right-0 bg-white rounded-full p-1">
               <Icon as={Camera} size="sm" className="text-black" />
             </View>
