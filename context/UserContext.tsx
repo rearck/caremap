@@ -1,10 +1,9 @@
-import React, { createContext, PropsWithChildren, useCallback, useState } from "react";
-import { getUserFromStorage } from "@/services/auth-service/google-auth";
 import { User } from "@/services/database/migrations/v1/schema_v1";
+import React, { createContext, PropsWithChildren, useState } from "react";
 
 interface UserContextType {
   user: User | null;
-  setUserData: () => Promise<void>;
+  setUserData: (user: User | null) => Promise<void>;
 }
 
 export const UserContext = createContext<UserContextType>({
@@ -15,12 +14,9 @@ export const UserContext = createContext<UserContextType>({
 export function UserProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null);
 
-  const setUserData = useCallback(async () => {
-    const userData = await getUserFromStorage();
-    setUser(userData);
-  }, []);
-
- 
+  const setUserData = async (user: User | null) => {
+    setUser(user);
+  };
 
   return (
     <UserContext.Provider
