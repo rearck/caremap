@@ -32,7 +32,7 @@ export default function Snapshot() {
       );
     }
   }, [patient]);
-
+const isDisabled = summary.trim() === "" && healthIssues.trim() === "";
   const handleSave = async () => {
     if (!patient?.id) {
       Alert.alert("Error", "Patient not found.");
@@ -120,9 +120,13 @@ export default function Snapshot() {
         </Textarea>
 
         <TouchableOpacity
-          style={{ backgroundColor: palette.primary }}
+          style={{
+            backgroundColor: palette.primary,
+            opacity: isDisabled ? 0.5 : 1,
+          }}
           className="py-3 rounded-lg"
-          onPress={handleSave}
+          onPress={isDisabled ? undefined : handleSave}
+          disabled={isDisabled}
         >
           <Text className="text-white font-bold text-center">Save</Text>
         </TouchableOpacity>
