@@ -46,49 +46,49 @@ export default function HealthProfile() {
   const medicalTiles = [
     {
       name: "Medical overview",
-      image: require("../../../assets/images/medicalOverview.png"),
+      image: require("@/assets/images/medicalOverview.png"),
       badge: 5,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Emergency Care",
-      image: require("../../../assets/images/emergencyCare.png"),
+      image: require("@/assets/images/emergencyCare.png"),
       badge: 3,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Allergies",
-      image: require("../../../assets/images/allergies.png"),
+      image: require("@/assets/images/allergies.png"),
       badge: 2,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Medications",
-      image: require("../../../assets/images/medications.png"),
+      image: require("@/assets/images/medications.png"),
       badge: 6,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Medical History",
-      image: require("../../../assets/images/medical-history.png"),
+      image: require("@/assets/images/medical-history.png"),
       badge: 1,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Hospitalization",
-      image: require("../../../assets/images/hospitalization.png"),
+      image: require("@/assets/images/hospitalization.png"),
       badge: 4,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Test 1",
-      image: require("../../../assets/images/medicalOverview.png"),
+      image: require("@/assets/images/medicalOverview.png"),
       badge: 6,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Test 2",
-      image: require("../../../assets/images/emergencyCare.png"),
+      image: require("@/assets/images/emergencyCare.png"),
       badge: 9,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
@@ -183,7 +183,7 @@ export default function HealthProfile() {
                           </Box>
                           <Box>
                             <Image
-                              source={require("../../../assets/images/arrow.png")}
+                              source={require("@/assets/images/arrow.png")}
                               className="w-4 h-4 ml-2"
                               resizeMode="contain"
                             />
