@@ -6,38 +6,39 @@ import { ChevronLeft } from "lucide-react-native";
 import { Route, router } from "expo-router";
 import { ROUTES } from "@/utils/route";
 import Header from "@/components/shared/Header";
+import palette from "@/utils/theme/color";
 
 function medicalOverview() {
   const medicalTiles = [
     {
       name: "Snapshot",
       count: "3",
-      icon: require("../../../../assets/images/medicalOverview.png"),
+      icon: require("@/assets/images/medicalOverview.png"),
       link: ROUTES.SNAPSHOT,
     },
     {
       name: "Medical Conditions",
       count: "2",
-      icon: require("../../../../assets/images/emergencyCare.png"),
+      icon: require("@/assets/images/emergencyCare.png"),
       link: ROUTES.MEDICAL_CONDITIONS,
     },
     {
       name: "Medical Equipments",
       count: "14",
-      icon: require("../../../../assets/images/allergies.png"),
+      icon: require("@/assets/images/allergies.png"),
       link: ROUTES.MEDICAL_EQUIPMENTS,
     },
     {
       name: "High level Goals",
       count: "7",
-      icon: require("../../../../assets/images/medications.png"),
+      icon: require("@/assets/images/medications.png"),
       link: ROUTES.SNAPSHOT,
     },
 
     {
       name: "Hospitalization",
-      count: "",
-      icon: require("../../../../assets/images/hospitalization.png"),
+      count: "1",
+      icon: require("@/assets/images/hospitalization.png"),
       link: ROUTES.SNAPSHOT,
     },
   ];
@@ -64,12 +65,14 @@ function medicalOverview() {
 
                 <View className="flex-row items-center">
                   {tile.count && (
-                    <Badge className="bg-[#49AFBE] rounded-full mr-2">
+                    <Badge 
+                     style={{ backgroundColor: palette.primary }}
+                    className=" rounded-full mr-2">
                       <BadgeText className="text-white">{tile.count}</BadgeText>
                     </Badge>
                   )}
                   <Image
-                    source={require("../../../../assets/images/arrow.png")}
+                    source={require("@/assets/images/arrow.png")}
                     className="w-4 h-4"
                     resizeMode="contain"
                   />
