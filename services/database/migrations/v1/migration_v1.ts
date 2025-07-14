@@ -7,8 +7,7 @@ export const up = async (db: SQLiteDatabase) => {
     CREATE TABLE IF NOT EXISTS ${tables.USER} (
       id TEXT PRIMARY KEY,
       email TEXT NOT NULL UNIQUE,
-      name TEXT,
-      profile_picture_url TEXT
+      name TEXT
     );
 
     CREATE TABLE IF NOT EXISTS ${tables.PATIENT} (
@@ -21,6 +20,7 @@ export const up = async (db: SQLiteDatabase) => {
       height REAL,
       gender TEXT,
       birthdate TEXT,
+      profile_picture_url TEXT,
       FOREIGN KEY(user_id) REFERENCES ${tables.USER}(id) ON DELETE CASCADE
     );
 

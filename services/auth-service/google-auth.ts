@@ -1,5 +1,6 @@
 import { User } from "@/services//database/migrations/v1/schema_v1";
 import { AuthTokens } from "@/services/common/types";
+import { getPatientByUserId, isExistingPatientByUserId } from "@/services/core/PatientService";
 import { logger } from "@/services/logging/logger";
 import { googleConfig, TOKEN_EXPIRY } from "@/utils/config";
 import { ROUTES } from "@/utils/route";
@@ -149,8 +150,21 @@ export const saveTokens = async (auth: {
 
 // --------- Saving User Data
 export const saveUser = async (user: any) => {
-    logger.debug(`\n👤 Saving user: ${JSON.stringify(user)}`);
-    await SecureStore.setItemAsync("user", JSON.stringify(user));
+    try {
+        logger.debug(`Saving user: ${JSON.stringify(user)}`);
+        await SecureStore.setItemAsync("user", JSON.stringify(user));
+
+        const profilePicture = await getProfilePicture(user);
+        if (typeof profilePicture !== "string" || profilePicture.length === 0) {
+            throw new Error("Profile picture must be a string and should not be empty!");
+        }
+
+        await SecureStore.setItemAsync("user_profile_picture", profilePicture);
+
+        logger.debug("User and profile picture saved successfully.");
+    } catch (error) {
+        console.error("Failed to save user:", error);
+    }
 };
 
 // --------- Getting Stored Tokens
@@ -209,14 +223,12 @@ export const refreshAccessToken = async (refresh_token: string): Promise<boolean
         if (data.access_token) {
             const issuedAt = Math.floor(Date.now() / 1000).toString();
             const expiresIn = data.expires_in;
-            logger.debug(expiresIn);
 
             await SecureStore.setItemAsync("access_token", data.access_token);
             await SecureStore.setItemAsync("issued_at", issuedAt);
             await SecureStore.setItemAsync("expires_in", (TEST_EXPIRY_IN_SECONDS != null ? TEST_EXPIRY_IN_SECONDS : expiresIn)!.toString());
 
-            logger.debug("✅ Token refreshed via scheduled refresh");
-            logger.debug(`✅ Token refreshed: access_token=${data.access_token.slice(0, 8)}..., issued_at=${issuedAt}`);
+            logger.debug(`✅ Token refreshed via scheduled refresh: access_token=${data.access_token.slice(0, 8)}..., issued_at=${issuedAt} .`);
             return true;
         } else {
             console.error("❌ Failed to refresh token:", data);
@@ -240,8 +252,7 @@ export const getUserFromStorage = async (): Promise<User> => {
     userInfo = {
         id: userJson.id,
         name: userJson.name,
-        email: userJson.email,
-        profile_picture_url: userJson.picture
+        email: userJson.email
     }
 
     return userInfo;
@@ -268,4 +279,16 @@ export const startSession = async (): Promise<boolean> => {
     }
 
     return false;
+};
+
+// --------- Get profile_picture
+export const getProfilePicture = async (user: any): Promise<string> => {
+    if (!user?.picture) return "";
+    const patientExists = await isExistingPatientByUserId(user.id);
+    if (!patientExists) return user.picture;
+
+    const patient = await getPatientByUserId(user.id);
+    const profilePictureUrl = patient?.profile_picture_url?.trim();
+
+    return profilePictureUrl ? profilePictureUrl : user.picture;
 };
