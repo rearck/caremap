@@ -119,8 +119,8 @@ export default function HealthProfile() {
 
         <View className="flex-row items-center justify-between">
           <Avatar size="xl">
-            {patient?.profile_picture_url ? (
-              <AvatarImage source={{ uri: patient.profile_picture_url }} />
+            {patient?.profile_picture ? (
+              <AvatarImage source={{ uri: patient.profile_picture }} />
             ) : (
               <View className="w-full h-full items-center justify-center bg-gray-200 rounded-full">
                 <Icon as={User} size="xl" className="text-gray-500" />

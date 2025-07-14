@@ -1,6 +1,6 @@
+import { tables } from "@/services/database/migrations/v1/schema_v1";
 import { logger } from "@/services/logging/logger";
 import { SQLiteDatabase } from "expo-sqlite";
-import { tables } from "@/services/database/migrations/v1/schema_v1";
 
 export const up = async (db: SQLiteDatabase) => {
   await db.execAsync(`
@@ -20,7 +20,7 @@ export const up = async (db: SQLiteDatabase) => {
       height REAL,
       gender TEXT,
       birthdate TEXT,
-      profile_picture_url TEXT,
+      profile_picture TEXT,
       FOREIGN KEY(user_id) REFERENCES ${tables.USER}(id) ON DELETE CASCADE
     );
 

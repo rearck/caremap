@@ -5,7 +5,6 @@ import { MedicalEquipmentModel } from '@/services/database/models/MedicalEquipme
 import { PatientModel } from '@/services/database/models/PatientModel';
 import { PatientSnapshotModel } from '@/services/database/models/PatientSnapshotModel';
 import { logger } from '@/services/logging/logger';
-import * as SecureStore from "expo-secure-store";
 
 // Single shared instances of models
 const patientModel = new PatientModel();
@@ -54,12 +53,9 @@ export const createPatient = async (user: User): Promise<Patient> => {
             return patient!;
         }
 
-        const patient_profile_picture = await SecureStore.getItemAsync("user_profile_picture");
-
         const newPatient: Partial<Patient> = {
             user_id: user.id,
             name: user.name,
-            profile_picture_url: patient_profile_picture ?? "",
         };
         await model.insert(newPatient);
         const patient = await getPatientByUserId(user.id);

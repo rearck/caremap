@@ -14,7 +14,7 @@ export interface Patient {
   height?: number;
   gender?: string;
   birthdate?: Date;
-  profile_picture_url?: string;
+  profile_picture?: string;
 }
 
 export interface PatientSnapshot {

@@ -1,6 +1,5 @@
 import { User } from "@/services//database/migrations/v1/schema_v1";
 import { AuthTokens } from "@/services/common/types";
-import { getPatientByUserId, isExistingPatientByUserId } from "@/services/core/PatientService";
 import { logger } from "@/services/logging/logger";
 import { googleConfig, TOKEN_EXPIRY } from "@/utils/config";
 import { ROUTES } from "@/utils/route";
@@ -153,15 +152,7 @@ export const saveUser = async (user: any) => {
     try {
         logger.debug(`Saving user: ${JSON.stringify(user)}`);
         await SecureStore.setItemAsync("user", JSON.stringify(user));
-
-        const profilePicture = await getProfilePicture(user);
-        if (typeof profilePicture !== "string" || profilePicture.length === 0) {
-            throw new Error("Profile picture must be a string and should not be empty!");
-        }
-
-        await SecureStore.setItemAsync("user_profile_picture", profilePicture);
-
-        logger.debug("User and profile picture saved successfully.");
+        logger.debug("User saved successfully.");
     } catch (error) {
         console.error("Failed to save user:", error);
     }
@@ -279,16 +270,4 @@ export const startSession = async (): Promise<boolean> => {
     }
 
     return false;
-};
-
-// --------- Get profile_picture
-export const getProfilePicture = async (user: any): Promise<string> => {
-    if (!user?.picture) return "";
-    const patientExists = await isExistingPatientByUserId(user.id);
-    if (!patientExists) return user.picture;
-
-    const patient = await getPatientByUserId(user.id);
-    const profilePictureUrl = patient?.profile_picture_url?.trim();
-
-    return profilePictureUrl ? profilePictureUrl : user.picture;
 };
