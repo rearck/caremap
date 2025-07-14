@@ -13,15 +13,15 @@ import { ROUTES } from "@/utils/route";
 const slides: Slide[] = [
   {
     title: "Connect with care teams and family members",
-    image: require("../../assets/images/intro1.png"),
+    image: require("@/assets/images/intro1.png"),
   },
   {
     title: "Set goals, monitor progress and chart results",
-    image: require("../../assets/images/intro2.png"),
+    image: require("@/assets/images/intro2.png"),
   },
   {
     title: "View and share a snapshot of the latest health record",
-    image: require("../../assets/images/intro3.png"),
+    image: require("@/assets/images/intro3.png"),
   },
 ];
 

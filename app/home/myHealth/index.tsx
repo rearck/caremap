@@ -12,7 +12,7 @@ import { logger } from "@/services/logging/logger";
 import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
 import { Route, router } from "expo-router";
-import { Camera } from "lucide-react-native";
+import { Camera, User } from "lucide-react-native";
 import { useContext, useEffect, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -46,49 +46,49 @@ export default function HealthProfile() {
   const medicalTiles = [
     {
       name: "Medical overview",
-      image: require("../../../assets/images/medicalOverview.png"),
+      image: require("@/assets/images/medicalOverview.png"),
       badge: 5,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Emergency Care",
-      image: require("../../../assets/images/emergencyCare.png"),
+      image: require("@/assets/images/emergencyCare.png"),
       badge: 3,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Allergies",
-      image: require("../../../assets/images/allergies.png"),
+      image: require("@/assets/images/allergies.png"),
       badge: 2,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Medications",
-      image: require("../../../assets/images/medications.png"),
+      image: require("@/assets/images/medications.png"),
       badge: 6,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Medical History",
-      image: require("../../../assets/images/medical-history.png"),
+      image: require("@/assets/images/medical-history.png"),
       badge: 1,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Hospitalization",
-      image: require("../../../assets/images/hospitalization.png"),
+      image: require("@/assets/images/hospitalization.png"),
       badge: 4,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Test 1",
-      image: require("../../../assets/images/medicalOverview.png"),
+      image: require("@/assets/images/medicalOverview.png"),
       badge: 6,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
       name: "Test 2",
-      image: require("../../../assets/images/emergencyCare.png"),
+      image: require("@/assets/images/emergencyCare.png"),
       badge: 9,
       link: ROUTES.MEDICAL_OVERVIEW,
     },
@@ -119,7 +119,13 @@ export default function HealthProfile() {
 
         <View className="flex-row items-center justify-between">
           <Avatar size="xl">
-            <AvatarImage source={{ uri: user.profile_picture_url }} />
+            {patient?.profile_picture_url ? (
+              <AvatarImage source={{ uri: patient.profile_picture_url }} />
+            ) : (
+              <View className="w-full h-full items-center justify-center bg-gray-200 rounded-full">
+                <Icon as={User} size="xl" className="text-gray-500" />
+              </View>
+            )}
             <View className="absolute bottom-0 right-0 bg-white rounded-full p-1">
               <Icon as={Camera} size="sm" className="text-black" />
             </View>
@@ -127,7 +133,7 @@ export default function HealthProfile() {
 
           <View className="mr-4">
             <Text className="text-lg text-white font-semibold">
-              {user.name}
+              {patient?.name}
             </Text>
             <Text className="text-white">Age: {patient?.age ?? "Not set"}</Text>
             <Text className="text-white">
@@ -183,7 +189,7 @@ export default function HealthProfile() {
                           </Box>
                           <Box>
                             <Image
-                              source={require("../../../assets/images/arrow.png")}
+                              source={require("@/assets/images/arrow.png")}
                               className="w-4 h-4 ml-2"
                               resizeMode="contain"
                             />
