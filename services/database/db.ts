@@ -1,3 +1,4 @@
+import { handleAndroidDBReset } from '@/android-bypass/db-android-service';
 import { logger } from "@/services/logging/logger";
 import { SQLITE_DB_NAME } from "@/utils/config";
 import { SQLiteDatabase } from "expo-sqlite";
@@ -15,6 +16,7 @@ const dbReadyPromise = new Promise<SQLiteDatabase>((resolve) => {
 });
 
 export const initializeDatabase = async (db: SQLiteDatabase): Promise<void> => {
+    await handleAndroidDBReset(DB_NAME);
     _db = db;
     dbReadyResolver?.(db);
     logger.debug(`DB Path: "${_db.databasePath}"`);
