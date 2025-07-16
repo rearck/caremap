@@ -57,7 +57,8 @@ export default function EditProfilePage() {
       prev
         ? {
             ...prev,
-            date_of_birth: date
+            birthdate: formatted,
+            age: age !== null ? age : prev.age,
           }
         : prev
     );
