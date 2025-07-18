@@ -55,7 +55,7 @@ export const createPatient = async (user: User): Promise<Patient> => {
 
         const newPatient: Partial<Patient> = {
             user_id: user.id,
-            name: user.name
+            name: user.name,
         };
         await model.insert(newPatient);
         const patient = await getPatientByUserId(user.id);
