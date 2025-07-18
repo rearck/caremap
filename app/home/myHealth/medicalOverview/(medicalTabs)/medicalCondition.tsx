@@ -16,88 +16,16 @@ import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
 import Header from "@/components/shared/Header";
 import ActionPopover from "@/components/shared/ActionPopover";
 import { useCustomToast } from "@/components/shared/useCustomToast";
+import { MedicalCondition } from "@/services/database/migrations/v1/schema_v1";
 
 const linkedHealthSystem = [
   "Attention Deficient and Hyperactivity Disorder (ADHD)",
   "Irritable Bowel Syndrome (IBS)",
 ];
 
-function AddMedicalConditionsPage({
-  onClose,
-  handleAddMedicalCondition,
-  editingCondition,
-}: {
-  onClose: () => void;
-  handleAddMedicalCondition: (condition: { id?: number; name: string }) => void;
-  editingCondition?: { id: number; name: string };
-}) {
-  const [condition, setCondition] = useState(editingCondition?.name || "");
-  // console.log(condition);
-
-  return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView className="flex-1 bg-white">
-        {/* Header */}
-        <Header title="Medical Conditions" />
-
-        <View className="px-6 py-8">
-          <Text
-            className="text-lg font-medium mb-3"
-            style={{ color: palette.heading }}
-          >
-            {editingCondition
-              ? "Edit your current medical condition"
-              : "Add your current medical condition"}
-          </Text>
-
-          <Textarea
-            size="md"
-            isReadOnly={false}
-            isInvalid={false}
-            isDisabled={false}
-            className="w-full"
-          >
-            <TextareaInput
-              placeholder="Enter condition"
-              style={{ textAlignVertical: "top", fontSize: 16 }}
-              value={condition}
-              onChangeText={setCondition}
-            />
-          </Textarea>
-
-          <TouchableOpacity
-            className="py-3 rounded-md mt-3"
-            style={{ backgroundColor: palette.primary }}
-            onPress={() => {
-              if (condition.trim()) {
-                handleAddMedicalCondition({
-                  id: editingCondition?.id,
-                  name: condition.trim(),
-                });
-              }
-              onClose(); // Go back to list
-            }}
-          >
-            <Text className="text-white font-bold text-center">
-              {editingCondition ? "Update" : "Save"}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
-  );
-}
-
-interface Condition {
-  id: number;
-  name: string;
-  date?: string;
-  checked?: boolean;
-}
-
 export default function MedicalConditions() {
   const { patient } = useContext(PatientContext);
-  const [userConditions, setUserConditions] = useState<Condition[]>([]);
+  const [userConditions, setUserConditions] = useState<MedicalCondition[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCondition, setEditingCondition] = useState<
     { id: number; name: string } | undefined
@@ -106,9 +34,8 @@ export default function MedicalConditions() {
 
   // for Alert while delete
   const [showAlertDialog, setShowAlertDialog] = useState(false);
-  const [conditionToDelete, setConditionToDelete] = useState<Condition | null>(
-    null
-  );
+  const [conditionToDelete, setConditionToDelete] =
+    useState<MedicalCondition | null>(null);
 
   // Custom toast
   const showToast = useCustomToast();
@@ -122,26 +49,7 @@ export default function MedicalConditions() {
     try {
       const conditions = await getMedicalConditionsByPatient(patient.id);
       // console.log(conditions);
-      setUserConditions(
-        conditions.map((c) => {
-          // Use updated_at if it's different from created_at, else use created_at
-          const showUpdated = c.updated_at && c.updated_at !== c.created_at;
-          const dateToShow = showUpdated ? c.updated_at : c.created_at;
-          return {
-            id: c.id,
-            name: c.condition_name,
-            date: dateToShow
-              ? new Date(dateToShow)
-                  .toLocaleDateString("en-US", {
-                    month: "2-digit",
-                    day: "2-digit",
-                    year: "2-digit",
-                  })
-                  .replace(/\//g, "-")
-              : "",
-          };
-        })
-      );
+      setUserConditions(conditions);
     } catch (e) {
       console.log(e);
     } finally {
@@ -201,6 +109,24 @@ export default function MedicalConditions() {
         editingCondition={editingCondition}
       />
     );
+  }
+
+  // Format date for display
+  function getFormattedConditionDate(condition: MedicalCondition): string {
+    const showUpdated =
+      condition.updated_at && condition.updated_at !== condition.created_at;
+    const dateToShow = showUpdated
+      ? condition.updated_at
+      : condition.created_at;
+    return dateToShow
+      ? new Date(dateToShow)
+          .toLocaleDateString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "2-digit",
+          })
+          .replace(/\//g, "-")
+      : "";
   }
 
   return (
@@ -266,30 +192,35 @@ export default function MedicalConditions() {
                 keyExtractor={(item) => item.id.toString()}
                 scrollEnabled={true}
                 showsVerticalScrollIndicator={true}
-                renderItem={({ item: condition }) => (
-                  <View className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3">
-                    <View className="flex-row items-center space-x-2">
-                      <Text className="text-lg ml-3 max-w-[220px] text-left">
-                        {condition.name}
-                      </Text>
+                renderItem={({ item }) => {
+                  const formattedDate = getFormattedConditionDate(item);
+                  return (
+                    <View className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3">
+                      <View className="flex-row items-center space-x-2">
+                        <Text className="text-lg ml-3 max-w-[220px] text-left">
+                          {item.condition_name}
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center">
+                        <Text className="text-lg text-gray-500 mr-3">
+                          {formattedDate}
+                        </Text>
+                        <ActionPopover
+                          onEdit={() => {
+                            handleEdit({
+                              id: item.id,
+                              name: item.condition_name,
+                            });
+                          }}
+                          onDelete={() => {
+                            setConditionToDelete(item);
+                            setShowAlertDialog(true);
+                          }}
+                        />
+                      </View>
                     </View>
-                    <View className="flex-row items-center">
-                      <Text className="text-lg text-gray-500 mr-3">
-                        {condition.date}
-                      </Text>
-                      {/* Popover for Edit/Delete */}
-                      <ActionPopover
-                        onEdit={() => {
-                          handleEdit(condition);
-                        }}
-                        onDelete={() => {
-                          setConditionToDelete(condition);
-                          setShowAlertDialog(true);
-                        }}
-                      />
-                    </View>
-                  </View>
-                )}
+                  );
+                }}
                 ListEmptyComponent={
                   <Text className="text-gray-500">
                     No Medical conditions found.
@@ -321,7 +252,7 @@ export default function MedicalConditions() {
         onClose={() => setShowAlertDialog(false)}
         size="lg"
         title="Are you sure you want to delete?"
-        description={conditionToDelete?.name}
+        description={conditionToDelete?.condition_name}
         confirmText="Delete"
         cancelText="Cancel"
         onConfirm={async () => {
@@ -350,5 +281,71 @@ export default function MedicalConditions() {
           </View> */}
       </CustomAlertDialog>
     </SafeAreaView>
+  );
+}
+
+function AddMedicalConditionsPage({
+  onClose,
+  handleAddMedicalCondition,
+  editingCondition,
+}: {
+  onClose: () => void;
+  handleAddMedicalCondition: (condition: { id?: number; name: string }) => void;
+  editingCondition?: { id: number; name: string };
+}) {
+  const [condition, setCondition] = useState(editingCondition?.name || "");
+  // console.log(condition);
+
+  return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <SafeAreaView className="flex-1 bg-white">
+        {/* Header */}
+        <Header title="Medical Conditions" />
+
+        <View className="px-6 py-8">
+          <Text
+            className="text-lg font-medium mb-3"
+            style={{ color: palette.heading }}
+          >
+            {editingCondition
+              ? "Edit your current medical condition"
+              : "Add your current medical condition"}
+          </Text>
+
+          <Textarea
+            size="md"
+            isReadOnly={false}
+            isInvalid={false}
+            isDisabled={false}
+            className="w-full"
+          >
+            <TextareaInput
+              placeholder="Enter condition"
+              style={{ textAlignVertical: "top", fontSize: 16 }}
+              value={condition}
+              onChangeText={setCondition}
+            />
+          </Textarea>
+
+          <TouchableOpacity
+            className="py-3 rounded-md mt-3"
+            style={{ backgroundColor: palette.primary }}
+            onPress={() => {
+              if (condition.trim()) {
+                handleAddMedicalCondition({
+                  id: editingCondition?.id,
+                  name: condition.trim(),
+                });
+              }
+              onClose(); // Go back to list
+            }}
+          >
+            <Text className="text-white font-bold text-center">
+              {editingCondition ? "Update" : "Save"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 }
