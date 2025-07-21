@@ -65,9 +65,10 @@ function medicalOverview() {
 
                 <View className="flex-row items-center">
                   {tile.count && (
-                    <Badge 
-                     style={{ backgroundColor: palette.primary }}
-                    className=" rounded-full mr-2">
+                    <Badge
+                      style={{ backgroundColor: palette.primary }}
+                      className=" rounded-full mr-2"
+                    >
                       <BadgeText className="text-white">{tile.count}</BadgeText>
                     </Badge>
                   )}
