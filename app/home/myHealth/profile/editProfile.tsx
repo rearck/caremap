@@ -16,11 +16,12 @@ import { PatientContext } from "@/context/PatientContext";
 import { UserContext } from "@/context/UserContext";
 import { ShowAlert } from "@/services/common/ShowAlert";
 import { updatePatient } from "@/services/core/PatientService";
+import { calculateAge } from "@/services/core/utils";
 import { Patient } from "@/services/database/migrations/v1/schema_v1";
 import { logger } from "@/services/logging/logger";
 import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
-import { differenceInYears, format } from "date-fns";
+import { format } from "date-fns";
 import { useRouter } from "expo-router";
 import { Camera, ChevronDownIcon } from "lucide-react-native";
 import React, { useContext, useEffect, useState } from "react";
@@ -37,6 +38,7 @@ export default function EditProfilePage() {
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   useEffect(() => {
+    logger.debug("Edit Patient: ", patient);
     if (!patient) {
       console.error("Error", "No patient found. Please try again.");
       router.replace(ROUTES.MY_HEALTH);
@@ -46,24 +48,11 @@ export default function EditProfilePage() {
     setLoading(false);
   }, [patient]);
 
-  const calculateAge = (
-    birthdate: string | null | undefined
-  ): number | null => {
-    if (!birthdate) return null;
-    try {
-      const birthDate = new Date(birthdate);
-      const today = new Date();
-      return differenceInYears(today, birthDate);
-    } catch (error) {
-      console.error("Error calculating age:", error);
-      return null;
-    }
+  const getDisplayName = (patient: Patient): string => {
+    return `${patient.first_name} ${patient.middle_name ? patient.middle_name + ' ' : ''}${patient.last_name}`;
   };
 
   const handleConfirm = (date: Date) => {
-    const formatted = format(date, "yyyy-MM-dd");
-    const age = calculateAge(formatted);
-
     setNewPatient((prev) =>
       prev
         ? {
@@ -88,11 +77,10 @@ export default function EditProfilePage() {
 
       updatedPatient = await updatePatient(
         {
-          age: newPatient?.age,
           weight: newPatient?.weight,
           relationship: newPatient?.relationship,
           gender: newPatient?.gender,
-          birthdate: newPatient?.birthdate,
+          date_of_birth: newPatient?.date_of_birth,
         },
         { id: patient?.id }
       );
@@ -113,7 +101,7 @@ export default function EditProfilePage() {
     }
   };
 
-  if (loading || !user) {
+  if (loading || !user || !newPatient) {
     return (
       <SafeAreaView className="flex-1 justify-center items-center bg-white">
         <Text>Loading...</Text>
@@ -154,17 +142,17 @@ export default function EditProfilePage() {
           </Avatar>
           <View className="ml-16">
             <Text className="text-lg text-white font-semibold">
-              {patient?.name}
+              {getDisplayName(newPatient)}
             </Text>
-            <Text className="text-white">Age: {patient?.age}</Text>
-            <Text className="text-white">Weight: {patient?.weight} kg</Text>
+            <Text className="text-white">Age: {calculateAge(newPatient.date_of_birth) ?? 'Not set'}</Text>
+            <Text className="text-white">Weight: {newPatient.weight ? `${newPatient.weight} kg` : 'Not set'}</Text>
           </View>
         </View>
       </View>
       <View className="p-4">
         <LabeledDisplayField
           label="Name"
-          value={newPatient?.name ?? user.name}
+          value={getDisplayName(newPatient)}
         />
 
         <View className="mb-4">
@@ -174,8 +162,8 @@ export default function EditProfilePage() {
             onPress={() => setDatePickerVisibility(true)}
           >
             <Text className="text-gray-700">
-              {newPatient?.birthdate
-                ? format(new Date(newPatient.birthdate), "yyyy-MM-dd")
+              {newPatient.date_of_birth
+                ? format(newPatient.date_of_birth, "yyyy-MM-dd")
                 : "Select birthdate"}
             </Text>
             <Icon
@@ -194,7 +182,7 @@ export default function EditProfilePage() {
 
         <LabeledDisplayField
           label="Age"
-          value={newPatient?.age ? `${newPatient.age} years` : "Not specified"}
+          value={calculateAge(newPatient.date_of_birth) ? `${calculateAge(newPatient.date_of_birth)} years` : "Not specified"}
         />
 
         <View className="mb-4">
