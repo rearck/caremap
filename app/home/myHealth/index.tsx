@@ -60,7 +60,7 @@ export default function HealthProfile() {
       name: "Allergies",
       image: require("@/assets/images/allergies.png"),
       badge: 2,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.ALLERGIES,
     },
     {
       name: "Medications",
