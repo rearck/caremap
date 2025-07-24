@@ -32,7 +32,7 @@ function medicalOverview() {
       name: "High level Goals",
       count: "7",
       icon: require("@/assets/images/medications.png"),
-      link: ROUTES.SNAPSHOT,
+      link: ROUTES.HIGH_LEVEL_GOALS,
     },
 
     {
