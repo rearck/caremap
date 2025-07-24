@@ -54,7 +54,7 @@ export default function HealthProfile() {
       name: "Emergency Care",
       image: require("@/assets/images/emergencyCare.png"),
       badge: 3,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.EMERGENCY_CARE,
     },
     {
       name: "Allergies",
