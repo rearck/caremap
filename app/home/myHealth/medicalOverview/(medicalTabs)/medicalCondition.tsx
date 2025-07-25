@@ -4,11 +4,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
 import palette from "@/utils/theme/color";
 import {
-  getMedicalConditionsByPatient,
-  createMedicalCondition,
-  deleteMedicalCondition,
-  updateMedicalCondition,
-} from "@/services/core/PatientService";
+  createPatientCondition,
+  getPatientConditionsByPatientId,
+  updatePatientCondition,
+  deletePatientCondition,
+} from "@/services/core/PatientConditionService";
 import { PatientContext } from "@/context/PatientContext";
 import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import { Spinner } from "@/components/ui/spinner";
@@ -16,7 +16,7 @@ import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
 import Header from "@/components/shared/Header";
 import ActionPopover from "@/components/shared/ActionPopover";
 import { useCustomToast } from "@/components/shared/useCustomToast";
-import { MedicalCondition } from "@/services/database/migrations/v1/schema_v1";
+import { PatientCondition } from "@/services/database/migrations/v1/schema_v1";
 
 const linkedHealthSystem = [
   "Attention Deficient and Hyperactivity Disorder (ADHD)",
@@ -25,17 +25,17 @@ const linkedHealthSystem = [
 
 export default function MedicalConditions() {
   const { patient } = useContext(PatientContext);
-  const [userConditions, setUserConditions] = useState<MedicalCondition[]>([]);
+  const [userConditions, setUserConditions] = useState<PatientCondition[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCondition, setEditingCondition] = useState<
-    { id: number; name: string } | undefined
+    PatientCondition | undefined
   >(undefined);
   const [loading, setLoading] = useState(false);
 
   // for Alert while delete
   const [showAlertDialog, setShowAlertDialog] = useState(false);
   const [conditionToDelete, setConditionToDelete] =
-    useState<MedicalCondition | null>(null);
+    useState<PatientCondition | null>(null);
 
   // Custom toast
   const showToast = useCustomToast();
@@ -47,8 +47,7 @@ export default function MedicalConditions() {
     }
     setLoading(true);
     try {
-      const conditions = await getMedicalConditionsByPatient(patient.id);
-      // console.log(conditions);
+      const conditions = await getPatientConditionsByPatientId(patient.id);
       setUserConditions(conditions);
     } catch (e) {
       console.log(e);
@@ -62,39 +61,39 @@ export default function MedicalConditions() {
   }, [patient]);
 
   // add/update medicalCondition
-  const handleAddMedicalCondition = async (condition: {
+  const handleAddUpdateMedicalCondition = async (condition: {
     id?: number;
-    name: string;
+    condition_name: string;
   }) => {
     if (!patient?.id) return;
     if (condition.id) {
       //edit
-      await updateMedicalCondition(
-        { condition_name: condition.name }, // fields to update
+      await updatePatientCondition(
+        { condition_name: condition.condition_name }, // fields to update
         { id: condition.id } // where clause
       );
       await fetchConditions(); // Refresh list after editing
       showToast({
-        title: "Condition Updated",
+        title: "Condition updated",
         description: "Medical condition updated successfully!",
       });
     } else {
       // Add new condition
-      await createMedicalCondition({
+      await createPatientCondition({
         patient_id: patient.id,
-        condition_name: condition.name,
+        condition_name: condition.condition_name,
       });
       await fetchConditions(); // Refresh list after adding
       showToast({
-        title: "Condition Added",
+        title: "Condition added",
         description: "Medical condition added successfully!",
       });
     }
   };
 
   // open edit form
-  const handleEdit = (condition: { id: number; name: string }) => {
-    setEditingCondition({ id: condition.id, name: condition.name });
+  const handleEdit = (condition: PatientCondition) => {
+    setEditingCondition(condition);
     setShowAddForm(true);
   };
 
@@ -105,19 +104,20 @@ export default function MedicalConditions() {
           setShowAddForm(false);
           setEditingCondition(undefined);
         }}
-        handleAddMedicalCondition={handleAddMedicalCondition}
+        handleAddUpdateMedicalCondition={handleAddUpdateMedicalCondition}
         editingCondition={editingCondition}
       />
     );
   }
 
   // Format date for display
-  function getFormattedConditionDate(condition: MedicalCondition): string {
+  function getFormattedConditionDate(condition: PatientCondition): string {
     const showUpdated =
-      condition.updated_at && condition.updated_at !== condition.created_at;
+      condition.updated_date &&
+      condition.updated_date !== condition.created_date;
     const dateToShow = showUpdated
-      ? condition.updated_at
-      : condition.created_at;
+      ? condition.updated_date
+      : condition.created_date;
     return dateToShow
       ? new Date(dateToShow)
           .toLocaleDateString("en-US", {
@@ -151,7 +151,7 @@ export default function MedicalConditions() {
             <FlatList
               data={linkedHealthSystem}
               renderItem={({ item }) => (
-                <View className="border border-gray-200 rounded-lg p-2 bg-gray-100 mb-2">
+                <View className="border border-gray-200 rounded-lg p-2 bg-gray-100 mb-3">
                   <Text className="text-lg">{item}</Text>
                 </View>
               )}
@@ -207,10 +207,7 @@ export default function MedicalConditions() {
                         </Text>
                         <ActionPopover
                           onEdit={() => {
-                            handleEdit({
-                              id: item.id,
-                              name: item.condition_name,
-                            });
+                            handleEdit(item);
                           }}
                           onDelete={() => {
                             setConditionToDelete(item);
@@ -250,35 +247,21 @@ export default function MedicalConditions() {
       <CustomAlertDialog
         isOpen={showAlertDialog}
         onClose={() => setShowAlertDialog(false)}
-        size="lg"
-        title="Are you sure you want to delete?"
         description={conditionToDelete?.condition_name}
-        confirmText="Delete"
-        cancelText="Cancel"
         onConfirm={async () => {
           if (conditionToDelete) {
-            await deleteMedicalCondition(conditionToDelete.id);
+            await deletePatientCondition(conditionToDelete.id);
             await fetchConditions();
             showToast({
-              title: "Condition Deleted",
+              title: "Condition deleted",
               description: "Medical condition deleted successfully!",
             });
           }
           setShowAlertDialog(false);
           setConditionToDelete(null);
         }}
-        confirmButtonProps={{
-          style: { backgroundColor: palette.primary, marginLeft: 8 },
-        }}
       >
-        {/* children */}
-        {/* <View className="flex-row items-center justify-between border border-gray-300 rounded-lg px-3 py-3 mb-3">
-            <View className="flex-row items-center">
-              <Text className="text-lg ml-3 max-w-[220px] text-left">
-                {conditionToDelete?.name}
-              </Text>
-            </View>
-          </View> */}
+        {/* children prop */}
       </CustomAlertDialog>
     </SafeAreaView>
   );
@@ -286,21 +269,25 @@ export default function MedicalConditions() {
 
 function AddMedicalConditionsPage({
   onClose,
-  handleAddMedicalCondition,
+  handleAddUpdateMedicalCondition,
   editingCondition,
 }: {
   onClose: () => void;
-  handleAddMedicalCondition: (condition: { id?: number; name: string }) => void;
-  editingCondition?: { id: number; name: string };
+  handleAddUpdateMedicalCondition: (condition: {
+    id?: number;
+    condition_name: string;
+  }) => void;
+  editingCondition?: { id: number; condition_name: string };
 }) {
-  const [condition, setCondition] = useState(editingCondition?.name || "");
-  // console.log(condition);
+  const [condition, setCondition] = useState(
+    editingCondition?.condition_name || ""
+  );
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
         {/* Header */}
-        <Header title="Medical Conditions" />
+        <Header title="Medical Conditions" onBackPress={onClose} />
 
         <View className="px-6 py-8">
           <Text
@@ -308,7 +295,7 @@ function AddMedicalConditionsPage({
             style={{ color: palette.heading }}
           >
             {editingCondition
-              ? "Edit your current medical condition"
+              ? "Update your current medical condition"
               : "Add your current medical condition"}
           </Text>
 
@@ -332,9 +319,9 @@ function AddMedicalConditionsPage({
             style={{ backgroundColor: palette.primary }}
             onPress={() => {
               if (condition.trim()) {
-                handleAddMedicalCondition({
+                handleAddUpdateMedicalCondition({
                   id: editingCondition?.id,
-                  name: condition.trim(),
+                  condition_name: condition.trim(),
                 });
               }
               onClose(); // Go back to list

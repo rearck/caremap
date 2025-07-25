@@ -75,10 +75,10 @@ export default function HealthProfile() {
       link: ROUTES.MEDICAL_OVERVIEW,
     },
     {
-      name: "Hospitalization",
+      name: "Notes",
       image: require("@/assets/images/hospitalization.png"),
       badge: 4,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.NOTES,
     },
     {
       name: "Test 1",
