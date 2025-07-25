@@ -15,47 +15,44 @@ import Header from "@/components/shared/Header";
 import { Divider } from "@/components/ui/divider";
 import { useCustomToast } from "@/components/shared/useCustomToast";
 import { PatientContext } from "@/context/PatientContext";
-import { PatientEmergencyCare } from "@/services/database/migrations/v1/schema_v1";
+import { PatientMedication } from "@/services/database/migrations/v1/schema_v1";
 import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
 
 import ActionPopover from "@/components/shared/ActionPopover";
 import {
-  createPatientEmergencyCare,
-  deletePatientEmergencyCare,
-  getPatientEmergencyCaresByPatientId,
-  updatePatientEmergencyCare,
-} from "@/services/core/PatientEmergencyCareService";
+  createPatientMedication,
+  getPatientMedicationsByPatientId,
+  updatePatientMedication,
+  deletePatientMedication,
+} from "@/services/core/PatientMedicationService";
 
-export default function EmergencyCareScreen() {
+export default function MedicationsScreen() {
   const { patient } = useContext(PatientContext);
-  const [careList, setCareList] = useState<PatientEmergencyCare[]>([]);
+  const [medicationList, setMedicationList] = useState<PatientMedication[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [editingItem, setEditingItem] = useState<PatientEmergencyCare | null>(
+  const [editingItem, setEditingItem] = useState<PatientMedication | null>(
     null
   );
   const [showDialog, setShowDialog] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<PatientEmergencyCare | null>(
+  const [itemToDelete, setItemToDelete] = useState<PatientMedication | null>(
     null
   );
   const showToast = useCustomToast();
 
   useEffect(() => {
     if (patient?.id) {
-      getPatientEmergencyCaresByPatientId(patient.id).then(setCareList);
+      getPatientMedicationsByPatientId(patient.id).then(setMedicationList);
     }
   }, [patient]);
 
-  const handleAddOrUpdate = async (data: {
-    name: string;
-    guidance: string;
-  }) => {
+  const handleAddOrUpdate = async (data: { name: string; details: string }) => {
     if (!patient?.id) return;
 
     if (editingItem) {
-      const updated = await updatePatientEmergencyCare(
+      const updated = await updatePatientMedication(
         {
-          topic: data.name,
-          details: data.guidance,
+          name: data.name,
+          details: data.details,
         },
         { id: editingItem.id }
       );
@@ -68,10 +65,10 @@ export default function EmergencyCareScreen() {
         });
       }
     } else {
-      const created = await createPatientEmergencyCare({
+      const created = await createPatientMedication({
         patient_id: patient.id,
-        topic: data.name,
-        details: data.guidance,
+        name: data.name,
+        details: data.details,
       });
       if (created) {
         await refreshCareList();
@@ -89,8 +86,8 @@ export default function EmergencyCareScreen() {
 
   const refreshCareList = async () => {
     if (patient?.id) {
-      const updatedList = await getPatientEmergencyCaresByPatientId(patient.id);
-      setCareList(updatedList);
+      const updatedList = await getPatientMedicationsByPatientId(patient.id);
+      setMedicationList(updatedList);
     }
   };
 
@@ -112,31 +109,33 @@ export default function EmergencyCareScreen() {
       <Header title="Emergency Care" />
 
       <View className="p-4 bg-white flex-1">
-        <Text
+          <Text
           style={{ color: palette.heading }}
           className="text-lg font-semibold mb-2"
         >
-          Guidance in case of Emergency
+          Medications (linked Health System)
+        </Text>
+        <Text className="text-gray-500 mb-3">
+          Select ones to review with your care team{" "}
+        </Text>
+         <Divider className="bg-gray-300" />
+         <Text
+          style={{ color: palette.heading }}
+          className="text-lg font-semibold mb-4"
+        >
+         List your active medications
         </Text>
         <Divider className="bg-gray-300" />
-        <Text className="text-gray-700 mt-2 mb-3">
-          List specific guidance for others on what steps to take in response to
-          emergency care situations.
-        </Text>
-        <Text className="text-gray-500  mb-4">
-          e.g. in the event of a severe allergic reaction give one 0.3 mg
-          injection into the muscle of the thigh
-        </Text>
-        <Divider className="bg-gray-300" />
+
         <FlatList
-      className="mt-2"
-          data={careList}
+        className="mt-2"
+          data={medicationList}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={true}
           renderItem={({ item }) => (
             <View className="flex-row items-start border border-gray-300 rounded-xl p-4 mb-4">
               <View className="ml-3 flex-1">
-                <Text className="font-semibold text-base">{item.topic}</Text>
+                <Text className="font-semibold text-base">{item.name}</Text>
                 <Text className="text-gray-500 text-sm mt-1">
                   {item.details}
                 </Text>
@@ -156,7 +155,8 @@ export default function EmergencyCareScreen() {
           )}
           ListEmptyComponent={
             <Text className="text-gray-500 text-center my-4">
-              No emergency care instructions found.
+              No Medication found.
+             
             </Text>
           }
         />
@@ -169,7 +169,8 @@ export default function EmergencyCareScreen() {
           onPress={() => setShowForm(true)}
         >
           <Text className="text-white font-bold text-center">
-            Add current condition
+            
+             Add current medical condition
           </Text>
         </TouchableOpacity>
       </View>
@@ -180,27 +181,27 @@ export default function EmergencyCareScreen() {
           setShowDialog(false);
           setItemToDelete(null);
         }}
-        title="Confirm Deletion" 
+        title="Confirm Deletion"
         description={
           itemToDelete
-            ? `Are you sure you want to delete \"${itemToDelete.topic}\"?`
+            ? `Are you sure you want to delete \"${itemToDelete.name}\"?`
             : "Are you sure you want to delete this item?"
         }
-        confirmText="Delete" 
-        cancelText="Cancel" 
+        confirmText="Delete"
+        cancelText="Cancel"
         confirmButtonProps={{
           style: { backgroundColor: palette.primary, marginLeft: 8 },
         }}
         cancelButtonProps={{ variant: "outline" }}
         onConfirm={async () => {
           if (itemToDelete) {
-            await deletePatientEmergencyCare(itemToDelete.id);
-            setCareList((prev) =>
+            await deletePatientMedication(itemToDelete.id);
+            setMedicationList((prev) =>
               prev.filter((eq) => eq.id !== itemToDelete.id)
             );
             showToast({
               title: "Deleted",
-              description: `\"${itemToDelete.topic}\" was removed successfully.`,
+              description: `\"${itemToDelete.name}\" was removed successfully.`,
               action: "success",
             });
             setItemToDelete(null);
@@ -218,19 +219,19 @@ function EmergencyCareForm({
   editingItem,
 }: {
   onClose: () => void;
-  onSave: (data: { name: string; guidance: string }) => void;
-  editingItem?: PatientEmergencyCare | null;
+  onSave: (data: { name: string; details: string }) => void;
+  editingItem?: PatientMedication | null;
 }) {
-  const [topic, setName] = useState(editingItem?.topic || "");
-  const [details, setDetails] = useState(editingItem?.details || "");
+  const [name, setName] = useState(editingItem?.name || "");
+  const [details, setGuidance] = useState(editingItem?.details || "");
 
-  const isSaveDisabled = !topic.trim() || !details.trim();
+  const isSaveDisabled = !name.trim() || !details.trim();
 
   const handleSave = () => {
     if (!isSaveDisabled) {
       onSave({
-        name: topic.trim(),
-        guidance: details.trim(),
+        name: name.trim(),
+        details: details.trim(),
       });
     }
   };
@@ -246,7 +247,7 @@ function EmergencyCareForm({
             <ChevronLeft color="white" size={24} />
           </TouchableOpacity>
           <Text className="text-xl text-white font-bold ml-4">
-            {editingItem ? "Edit" : "Add"} Emergency Care
+            {editingItem ? "Edit" : "Add"} Medications
           </Text>
         </View>
 
@@ -255,27 +256,23 @@ function EmergencyCareForm({
             className="text-lg font-medium mb-3"
             style={{ color: palette.heading }}
           >
-            {editingItem ? "Edit" : "Add"} Emergency Care
+            {editingItem ? "Edit" : "Add"} Medications 
           </Text>
 
-          <Text className="text-sm mb-1 text-gray-600">
-            Emergency Care Name
-          </Text>
+          <Text className="text-sm mb-1 text-gray-600">Medications Name</Text>
           <TextInput
             className="border border-gray-300 rounded-lg p-3 mb-4"
             placeholder="Enter condition name"
-            value={topic}
+            value={name}
             onChangeText={setName}
           />
 
-          <Text className="text-sm mb-1 text-gray-600">
-            Emergency Care Details
-          </Text>
+          <Text className="text-sm mb-1 text-gray-600">Medications detail</Text>
           <TextInput
             className="border border-gray-300 rounded-lg p-3 mb-4"
             placeholder="Enter guidance steps"
             value={details}
-            onChangeText={setDetails}
+            onChangeText={setGuidance}
             multiline
             numberOfLines={4}
             textAlignVertical="top"
