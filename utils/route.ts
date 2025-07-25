@@ -20,6 +20,7 @@ export const ROUTES = {
   MEDICAL_EQUIPMENTS:
     `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/medicalEquipments` as const,
   ALLERGIES: `${ROUTE_PREFIX.MY_HEALTH}/allergies` as const,
+  NOTES: `${ROUTE_PREFIX.MY_HEALTH}/notes` as const,
 } as const;
 
 export type AppRoutes = keyof typeof ROUTES;
