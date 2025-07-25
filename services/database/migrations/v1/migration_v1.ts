@@ -123,7 +123,7 @@ export const up = async (db: SQLiteDatabase) => {
       patient_id INTEGER NOT NULL,
       linked_health_system INTEGER NOT NULL DEFAULT 0,
       admission_date TEXT NOT NULL,
-      discharge_date TEXT NOT NULL,
+      discharge_date TEXT,
       details TEXT DEFAULT NULL,
       created_date TEXT NOT NULL DEFAULT (datetime('now')),
       updated_date TEXT NOT NULL DEFAULT (datetime('now')),
