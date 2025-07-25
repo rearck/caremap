@@ -1,12 +1,12 @@
-import {
-  PatientCondition,
-  PatientEquipment,
-  PatientGoal,
+import { 
+  PatientCondition, 
+  PatientEquipment, 
+  PatientGoal, 
   PatientSnapshot,
   PatientEmergencyCare,
   PatientAllergy,
   PatientMedication,
-  PatientNote
+  tables
 } from "@/services/database/migrations/v1/schema_v1";
 
 // Sample dates for consistent timestamps
@@ -92,7 +92,6 @@ export const samplePatientGoals: Partial<PatientGoal>[] = [
     patient_id: 1,
     goal_description: "Improve asthma control",
     target_date: new Date(nextMonth),
-    status: "Active",
     linked_health_system: true,
     created_date: new Date(lastWeek),
     updated_date: new Date(now)
@@ -101,7 +100,6 @@ export const samplePatientGoals: Partial<PatientGoal>[] = [
     patient_id: 1,
     goal_description: "Regular blood pressure monitoring",
     target_date: new Date(nextMonth),
-    status: "Active",
     linked_health_system: true,
     created_date: new Date(lastWeek),
     updated_date: new Date(now)
@@ -110,7 +108,6 @@ export const samplePatientGoals: Partial<PatientGoal>[] = [
     patient_id: 1,
     goal_description: "Maintain healthy diet",
     target_date: new Date(nextMonth),
-    status: "On Hold",
     linked_health_system: false,
     created_date: new Date(yesterday),
     updated_date: new Date(now)
@@ -204,32 +201,34 @@ export const samplePatientMedications: Partial<PatientMedication>[] = [
   }
 ];
 
-export const samplePatientNotes: Partial<PatientNote>[] = [
-  {
-    id: 1,
-    patient_id: 1,
-    topic: "Follow-up Appointment",
-    details: "Schedule follow-up with Dr. Smith for blood pressure check",
-    reminder_date: new Date("2024-03-15 10:00:00"),
-    created_date: new Date("2024-02-15 09:30:00"),
-    updated_date: new Date("2024-02-15 09:30:00")
-  },
-  {
-    id: 2,
-    patient_id: 1,
-    topic: "Medication Refill",
-    details: "Need to refill blood pressure medication next week",
-    reminder_date: new Date("2024-03-10 14:00:00"),
-    created_date: new Date("2024-02-14 15:45:00"),
-    updated_date: new Date("2024-02-14 15:45:00")
-  },
-  {
-    id: 3,
-    patient_id: 2,
-    topic: "Lab Results Review",
-    details: "Review latest blood work results with healthcare provider",
-    reminder_date: new Date("2024-03-20 11:30:00"),
-    created_date: new Date("2024-02-16 13:20:00"),
-    updated_date: new Date("2024-02-16 13:20:00")
-  }
-];
+export const sample_data = {
+    [tables.PATIENT_NOTE]: [
+        {
+            id: 1,
+            patient_id: 1,
+            topic: "Follow-up Appointment",
+            details: "Schedule follow-up with Dr. Smith for blood pressure check",
+            reminder_date: "2024-03-15 10:00:00",
+            created_date: "2024-02-15 09:30:00",
+            updated_date: "2024-02-15 09:30:00"
+        },
+        {
+            id: 2,
+            patient_id: 1,
+            topic: "Medication Refill",
+            details: "Need to refill blood pressure medication next week",
+            reminder_date: "2024-03-10 14:00:00",
+            created_date: "2024-02-14 15:45:00",
+            updated_date: "2024-02-14 15:45:00"
+        },
+        {
+            id: 3,
+            patient_id: 2,
+            topic: "Lab Results Review",
+            details: "Review latest blood work results with healthcare provider",
+            reminder_date: "2024-03-20 11:30:00",
+            created_date: "2024-02-16 13:20:00",
+            updated_date: "2024-02-16 13:20:00"
+        }
+    ]
+};
