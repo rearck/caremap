@@ -7,7 +7,7 @@ import {
     samplePatientEmergencyCare,
     samplePatientAllergies,
     samplePatientMedications,
-    samplePatientNotes
+    sample_data
 } from "@/services/database/seeds/v1/sample_data";
 import { logger } from "@/services/logging/logger";
 import { SQLiteDatabase } from "expo-sqlite";
@@ -87,7 +87,6 @@ export async function seedDatabase(db: SQLiteDatabase) {
                     patient_id,
                     goal_description,
                     target_date,
-                    status,
                     linked_health_system,
                     created_date,
                     updated_date
@@ -95,7 +94,6 @@ export async function seedDatabase(db: SQLiteDatabase) {
                     ${goal.patient_id},
                     '${escapeSQL(goal.goal_description)}',
                     '${goal.target_date?.toISOString() || new Date().toISOString()}',
-                    '${escapeSQL(goal.status)}',
                     ${goal.linked_health_system ? 1 : 0},
                     '${goal.created_date?.toISOString() || new Date().toISOString()}',
                     '${goal.updated_date?.toISOString() || new Date().toISOString()}'
@@ -174,7 +172,7 @@ export async function seedDatabase(db: SQLiteDatabase) {
         }
 
         // Insert patient notes
-        for (const note of samplePatientNotes) {
+        for (const note of sample_data[tables.PATIENT_NOTE]) {
             if (!note.patient_id || !note.topic) continue;
             await db.execAsync(
                 `INSERT INTO ${tables.PATIENT_NOTE} (
