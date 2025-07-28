@@ -106,7 +106,7 @@ export default function MedicationsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <Header title="Emergency Care" />
+      <Header title="Medications" />
 
       <View className="p-4 bg-white flex-1">
           <Text
