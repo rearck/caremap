@@ -12,13 +12,14 @@ export const ROUTES = {
   LOGIN: `${ROUTE_PREFIX.AUTH}/login` as const,
   MY_HEALTH: `${ROUTE_PREFIX.MY_HEALTH}` as const,
   EDIT_PROFILE: `${ROUTE_PREFIX.MY_HEALTH}/profile/editProfile` as const,
-
   MEDICAL_OVERVIEW: `${ROUTE_PREFIX.MEDICAL_OVERVIEW}` as const,
   SNAPSHOT: `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/snapshot` as const,
   MEDICAL_CONDITIONS:
     `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/medicalCondition` as const,
   MEDICAL_EQUIPMENTS:
     `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/medicalEquipments` as const,
+  HIGH_LEVEL_GOALS:
+    `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/highLevelGoals` as const,
   ALLERGIES: `${ROUTE_PREFIX.MY_HEALTH}/allergies` as const,
   NOTES: `${ROUTE_PREFIX.MY_HEALTH}/notes` as const,
 } as const;
