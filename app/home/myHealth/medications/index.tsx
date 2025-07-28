@@ -113,7 +113,7 @@ export default function MedicationsScreen() {
           style={{ color: palette.heading }}
           className="text-lg font-semibold mb-2"
         >
-          Medications (linked Health System)
+          Medications (Linked Health System)
         </Text>
         <Text className="text-gray-500 mb-3">
           Select ones to review with your care team{" "}
@@ -170,7 +170,7 @@ export default function MedicationsScreen() {
         >
           <Text className="text-white font-bold text-center">
             
-             Add current medical condition
+             Add current medications
           </Text>
         </TouchableOpacity>
       </View>
@@ -262,7 +262,7 @@ function EmergencyCareForm({
           <Text className="text-sm mb-1 text-gray-600">Medications Name</Text>
           <TextInput
             className="border border-gray-300 rounded-lg p-3 mb-4"
-            placeholder="Enter condition name"
+            placeholder="Enter medication name"
             value={name}
             onChangeText={setName}
           />
