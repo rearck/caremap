@@ -17,6 +17,8 @@ export const ROUTES = {
   SNAPSHOT: `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/snapshot` as const,
   MEDICAL_CONDITIONS:
     `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/medicalCondition` as const,
+    EMERGENCY_CARE: `${ROUTE_PREFIX.MY_HEALTH}/emergencyCare` as const,
+  MEDICATIONS: `${ROUTE_PREFIX.MY_HEALTH}/medications` as const,
   MEDICAL_EQUIPMENTS:
     `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/medicalEquipments` as const,
   HIGH_LEVEL_GOALS:

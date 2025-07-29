@@ -66,13 +66,13 @@ export default function HealthProfile() {
       name: "Medications",
       image: require("@/assets/images/medications.png"),
       badge: 6,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.MEDICATIONS,
     },
     {
       name: "Medical History",
       image: require("@/assets/images/medical-history.png"),
       badge: 1,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.MEDICAL_HISTORY,
     },
     {
       name: "Notes",
