@@ -8,6 +8,7 @@ import { UserContext } from "@/context/UserContext";
 import { initializeAuthSession } from "@/services/auth-service/google-auth";
 import { syncPatientSession } from "@/services/auth-service/session-service";
 import { ShowAlert } from "@/services/common/ShowAlert";
+import { calculateAge } from "@/services/core/utils";
 import { logger } from "@/services/logging/logger";
 import { ROUTES } from "@/utils/route";
 import palette from "@/utils/theme/color";
@@ -66,7 +67,7 @@ export default function HealthProfile() {
       name: "Medications",
       image: require("@/assets/images/medications.png"),
       badge: 6,
-      link: ROUTES.MEDICAL_OVERVIEW,
+      link: ROUTES.MEDICATIONS,
     },
     {
       name: "Medical History",
@@ -133,14 +134,18 @@ export default function HealthProfile() {
 
           <View className="mr-4">
             <Text className="text-lg text-white font-semibold">
-              {patient?.name}
+              {`${patient?.first_name} ${patient?.last_name}`}
             </Text>
-            <Text className="text-white">Age: {patient?.age ?? "Not set"}</Text>
+            <Text className="text-white">
+              Age:{" "}
+              {calculateAge(patient?.date_of_birth)
+                ? `${calculateAge(patient?.date_of_birth)} years`
+                : "Not set"}
+            </Text>
             <Text className="text-white">
               Weight: {patient?.weight ? `${patient.weight} kg` : "Not set"}
             </Text>
           </View>
-
           <View className="flex-row items-center">
             <TouchableOpacity onPress={() => router.push(ROUTES.EDIT_PROFILE)}>
               <Icon as={EditIcon} size="lg" className="text-white m-2" />
