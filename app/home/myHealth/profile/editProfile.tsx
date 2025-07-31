@@ -47,7 +47,7 @@ export default function EditProfilePage() {
     }
     setNewPatient({
       ...patient,
-      weight_unit: patient.weight_unit ?? "lb",
+      weight_unit: patient.weight_unit ?? "lbs",
     });
     setLoading(false);
   }, [patient]);
@@ -77,7 +77,7 @@ export default function EditProfilePage() {
       updatedPatient = await updatePatient(
         {
           weight: newPatient?.weight,
-           weight_unit: newPatient?.weight_unit ?? "lb",
+           weight_unit: newPatient?.weight_unit ?? "lbs",
           relationship: newPatient?.relationship,
           gender: newPatient?.gender,
           date_of_birth: newPatient?.date_of_birth,

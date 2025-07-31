@@ -17,7 +17,7 @@ export function calculateAge(date: Date | undefined | null): number | null {
         return null;
     }
 } 
-
+// Function to get display name from patient object in the format "First Middle Last"
  export const getDisplayName = (patient: Patient): string => {
     return `${patient.first_name} ${
       patient.middle_name ? patient.middle_name + " " : ""
