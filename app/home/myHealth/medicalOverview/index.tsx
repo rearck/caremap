@@ -35,12 +35,7 @@ function medicalOverview() {
       link: ROUTES.HIGH_LEVEL_GOALS,
     },
 
-    {
-      name: "Hospitalization",
-      count: "1",
-      icon: require("@/assets/images/hospitalization.png"),
-      link: ROUTES.SNAPSHOT,
-    },
+   
   ];
 
   return (

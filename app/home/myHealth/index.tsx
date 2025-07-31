@@ -143,7 +143,10 @@ export default function HealthProfile() {
                 : "Not set"}
             </Text>
             <Text className="text-white">
-              Weight: {patient?.weight ? `${patient.weight} kg` : "Not set"}
+              Weight:{" "}
+              {patient?.weight
+                ? `${patient.weight} ${patient.weight_unit ?? ""}`
+                : "Not set"}
             </Text>
           </View>
           <View className="flex-row items-center">
