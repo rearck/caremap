@@ -128,7 +128,6 @@ export default function HealthProfile() {
               </View>
             )}
             <View className="absolute bottom-0 right-0 bg-white rounded-full p-1">
-              <Icon as={Camera} size="sm" className="text-black" />
             </View>
           </Avatar>
 
