@@ -127,7 +127,7 @@ export default function SurgeriesProcedures() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <Header title="Surgeries/Procedure" />
+      <Header title="Surgeries / Procedures" />
 
       <View className="px-6 pt-8 flex-1">
         <View className="flex-1">
@@ -387,7 +387,7 @@ function AddUpdateFormPage({
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <SafeAreaView className="flex-1 bg-white">
         {/* Header */}
-        <Header title="Surgeries/Procedure" onBackPress={onClose} />
+        <Header title="Surgeries / Procedures" onBackPress={onClose} />
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
