@@ -128,7 +128,6 @@ export default function HealthProfile() {
               </View>
             )}
             <View className="absolute bottom-0 right-0 bg-white rounded-full p-1">
-              <Icon as={Camera} size="sm" className="text-black" />
             </View>
           </Avatar>
 
@@ -143,7 +142,10 @@ export default function HealthProfile() {
                 : "Not set"}
             </Text>
             <Text className="text-white">
-              Weight: {patient?.weight ? `${patient.weight} kg` : "Not set"}
+              Weight:{" "}
+              {patient?.weight
+                ? `${patient.weight} ${patient.weight_unit ?? ""}`
+                : "Not set"}
             </Text>
           </View>
           <View className="flex-row items-center">

@@ -17,20 +17,18 @@ export const ROUTES = {
   SNAPSHOT: `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/snapshot` as const,
   MEDICAL_CONDITIONS:
     `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/medicalCondition` as const,
-    EMERGENCY_CARE: `${ROUTE_PREFIX.MY_HEALTH}/emergencyCare` as const,
+  EMERGENCY_CARE: `${ROUTE_PREFIX.MY_HEALTH}/emergencyCare` as const,
   MEDICATIONS: `${ROUTE_PREFIX.MY_HEALTH}/medications` as const,
   MEDICAL_EQUIPMENTS:
     `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/medicalEquipments` as const,
-  EMERGENCY_CARE: `${ROUTE_PREFIX.MY_HEALTH}/emergencyCare` as const,
 
   HIGH_LEVEL_GOALS:
     `${ROUTE_PREFIX.MEDICAL_OVERVIEW}/(medicalTabs)/highLevelGoals` as const,
-  MEDICATIONS: `${ROUTE_PREFIX.MY_HEALTH}/medications` as const,
 
   ALLERGIES: `${ROUTE_PREFIX.MY_HEALTH}/allergies` as const,
   NOTES: `${ROUTE_PREFIX.MY_HEALTH}/notes` as const,
-    MEDICAL_HISTORY: `${ROUTE_PREFIX.MEDICAL_HISTORY}` as const,
-    HOSPITALIZATION:
+  MEDICAL_HISTORY: `${ROUTE_PREFIX.MEDICAL_HISTORY}` as const,
+  HOSPITALIZATION:
     `${ROUTE_PREFIX.MEDICAL_HISTORY}/(medicalHistoryTabs)/hospitalization` as const,
   SURGERIES_AND_PROCEDURES:
     `${ROUTE_PREFIX.MEDICAL_HISTORY}/(medicalHistoryTabs)/surgeriesAndProcedures` as const,
