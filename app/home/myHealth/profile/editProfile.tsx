@@ -17,11 +17,11 @@ import {
 } from "@/components/ui/select";
 import { PatientContext } from "@/context/PatientContext";
 import { UserContext } from "@/context/UserContext";
-// import { ShowAlert } from "@/services/common/ShowAlert";
 import { updatePatient } from "@/services/core/PatientService";
 import {
   calculateAge,
   getDisplayName,
+  pickImageFromLibrary,
 } from "@/services/core/utils";
 import { Patient } from "@/services/database/migrations/v1/schema_v1";
 import { logger } from "@/services/logging/logger";
@@ -75,9 +75,22 @@ export default function EditProfilePage() {
     setShowImageDialog(true);
   };
   const handlePickImage = async () => {
+    const result = await pickImageFromLibrary();
+    
+    if (result.error) {
+      showToast({
+        title: "Error",
+        description: "Image upload failed",
+        action: "error",
+      });
+      return;
+    }
 
-    // Function to pick an image from the library will be added here(further implementation)
-    // This function should be defined in your utils or services
+    if (result.base64Image) {
+      setNewPatient(prev => 
+        prev ? { ...prev, profile_picture: result.base64Image } : prev
+      );
+    }
   };
   const handleSave = async () => {
     if (!user) return;

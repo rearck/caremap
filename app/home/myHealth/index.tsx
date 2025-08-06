@@ -127,8 +127,6 @@ export default function HealthProfile() {
                 <Icon as={User} size="xl" className="text-gray-500" />
               </View>
             )}
-            <View className="absolute bottom-0 right-0 bg-white rounded-full p-1">
-            </View>
           </Avatar>
 
           <View className="mr-4">
