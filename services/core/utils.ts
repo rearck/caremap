@@ -1,7 +1,7 @@
 import { differenceInYears } from 'date-fns';
 import * as ImagePicker from 'expo-image-picker';
-import { logger } from '../logging/logger';
-import { Patient } from "../database/migrations/v1/schema_v1";
+import { logger } from '@/services/logging/logger';
+import { Patient } from '@/services/database/migrations/v1/schema_v1';
 
 export type ImagePickerResult = {
     base64Image: string | undefined;
@@ -50,6 +50,8 @@ export const pickImageFromLibrary = async (): Promise<ImagePickerResult> => {
     }
 };
 
+
+
 // Helper function to get current timestamp
 export function getCurrentTimestamp(): Date {
     return new Date();
@@ -68,7 +70,7 @@ export const calculateAge = (date: Date | undefined | null): number | null => {
 };
 
 // Function to get display name from patient object in the format "First Middle Last"
-export const getDisplayName = (patient: Patient): string => {
+ export const getDisplayName = (patient: Patient): string => {
     return `${patient.first_name} ${
       patient.middle_name ? patient.middle_name + " " : ""
     }${patient.last_name}`;
