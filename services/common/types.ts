@@ -1,4 +1,4 @@
-import { Question, ResponseOption, TrackCategory, TrackItem, TrackResponse } from "../database/migrations/v1/schema_v1";
+import { Question, ResponseOption, TrackCategory, TrackItem, TrackResponse } from "@/services/database/migrations/v1/schema_v1";
 
 export type AuthTokens = {
   access_token?: string;
@@ -26,8 +26,9 @@ export interface TrackCategoryWithItems extends TrackCategory {
   items: TrackItemWithProgress[];
 };
 
-export interface TrackItemWithProgress extends TrackItem {
+export interface TrackItemWithProgress {
   item: TrackItem;
+  entry_id: number;
   completed: number;
   total: number;
   started: boolean;

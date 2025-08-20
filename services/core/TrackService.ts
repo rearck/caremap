@@ -19,6 +19,9 @@ const responseOptionModel = new ResponseOptionModel();
 const trackResponseModel = new TrackResponseModel();
 const trackItemEntryModel = new TrackItemEntryModel();
 
+const now = getCurrentTimestamp();
+
+// To be altered to send summarized response object
 export const getTrackCategoriesWithItemsAndProgress = async (
     patientId: number,
     date: string
@@ -30,46 +33,55 @@ export const getTrackCategoriesWithItemsAndProgress = async (
 
         const items = await useModel(trackItemModel, async (itemModel: any) => {
             const result = await itemModel.runQuery(`
-                 SELECT 
-                    ti.id,
-                    ti.name,
-                    ti.category_id,
-                    COUNT(DISTINCT r.question_id) AS completed,
-                    COUNT(DISTINCT q.id) AS total,
-                    CASE WHEN tie.id IS NULL THEN 0 ELSE 1 END AS started
-                    FROM ${tables.TRACK_ITEM} ti
-                    INNER JOIN ${tables.TRACK_ITEM_ENTRY} tie 
-                    ON tie.track_item_id = ti.id AND tie.patient_id = ? AND tie.date = ?
-                    LEFT JOIN ${tables.TRACK_RESPONSE} r 
-                    ON r.track_item_entry_id = tie.id
-                    LEFT JOIN ${tables.QUESTION} q
-                    ON q.item_id = ti.id
-                    GROUP BY ti.id
-            `, [patientId, date]);
+        SELECT
+          ti.id AS item_id,
+          tie.id AS entry_id,
+          ti.name,
+          ti.category_id,
+          ti.created_date,
+          ti.updated_date,
+          COUNT(DISTINCT r.question_id) AS completed,
+          COUNT(DISTINCT q.id) AS total,
+          CASE WHEN tie.id IS NULL THEN 0 ELSE 1 END AS started
+        FROM ${tables.TRACK_ITEM} ti
+        INNER JOIN ${tables.TRACK_ITEM_ENTRY} tie
+          ON tie.track_item_id = ti.id
+         AND tie.patient_id = ?
+         AND tie.date = ?
+        LEFT JOIN ${tables.QUESTION} q
+          ON q.item_id = ti.id
+        LEFT JOIN ${tables.TRACK_RESPONSE} r
+          ON r.track_item_entry_id = tie.id 
+        GROUP BY tie.id, ti.id, ti.name, ti.category_id, ti.created_date, ti.updated_date
+      `, [patientId, date]);
             return result as any[];
         });
 
-        // Group items under categories and transform to match new interface
+        // Group items under categories and transform to match your interface
         return categories.map((cat: any) => ({
             ...cat,
-            items: items.filter((item: any) => item.category_id === cat.id).map((item: any) => ({
-                item: {
-                    id: item.id,
-                    category_id: item.category_id,
-                    name: item.name,
-                    created_date: item.created_date,
-                    updated_date: item.updated_date
-                },
-                completed: item.completed, // TODO: Calculate based on responses
-                total: item.total, // TODO: Calculate based on questions
-                started: item.started === 1,
-            }))
+            items: items
+                .filter((row: any) => row.category_id === cat.id)
+                .map((row: any) => ({
+                    item: {
+                        id: row.item_id,
+                        category_id: row.category_id,
+                        name: row.name,
+                        created_date: row.created_date,
+                        updated_date: row.updated_date
+                    },
+                    entry_id: row.entry_id,
+                    completed: row.completed,
+                    total: row.total,
+                    started: row.started === 1,
+                }))
         }));
     });
 
     logger.debug('getTrackCategoriesWithItemsAndProgress completed', JSON.stringify(result, null, 2));
     return result;
 };
+
 
 export const getAllCategoriesWithSelectableItems = async (
     patientId: number,
@@ -118,6 +130,7 @@ export const getAllCategoriesWithSelectableItems = async (
     });
 };
 
+
 export const getQuestionsWithOptions = async (
     itemId: number
 ): Promise<QuestionWithOptions[]> => {
@@ -138,14 +151,16 @@ export const getQuestionsWithOptions = async (
         }));
     });
 
-    logger.debug('getQuestionsWithOptions completed', { itemId });
+    logger.debug('getQuestionsWithOptions completed', { itemId }, `${JSON.stringify(result)}`);
     return result;
 };
 
 export const saveResponse = async (
     entryId: number,
     questionId: number,
-    answer: unknown
+    answer: string,
+    userId: string,
+    patientId: number
 ): Promise<void> => {
     logger.debug('saveResponse called', { entryId, questionId, answer });
 
@@ -153,6 +168,8 @@ export const saveResponse = async (
         const existing = await model.getFirstByFields({
             track_item_entry_id: entryId,
             question_id: questionId,
+            user_id: userId,
+            patient_id: patientId
         });
 
         if (existing) {
@@ -164,13 +181,14 @@ export const saveResponse = async (
                 {
                     track_item_entry_id: entryId,
                     question_id: questionId,
+                    user_id: userId,
+                    patient_id: patientId
                 }
             );
         } else {
             await model.insert({
-                user_id: 1, // TODO: Get from context
-                patient_id: 1, // TODO: Get from context
-                item_id: 1, // TODO: Get from context
+                user_id: userId,
+                patient_id: patientId,
                 question_id: questionId,
                 track_item_entry_id: entryId,
                 answer: JSON.stringify(answer),
@@ -230,8 +248,8 @@ export const addTrackItemOnDate = async (
             patient_id: patientId,
             track_item_id: itemId,
             date,
-            created_date: getCurrentTimestamp(),
-            updated_date: getCurrentTimestamp(),
+            created_date: now,
+            updated_date: now,
         });
     });
 
