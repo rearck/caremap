@@ -1,29 +1,31 @@
-import React, { useContext, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  TextInput,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Textarea, TextareaInput } from "@/components/ui/textarea";
-import palette from "@/utils/theme/color";
-import {
-  createPatientNote,
-  getPatientNotesByPatientId,
-  updatePatientNote,
-  deletePatientNote,
-} from "@/services/core/PatientNoteService";
-import { PatientContext } from "@/context/PatientContext";
-import { Keyboard, TouchableWithoutFeedback } from "react-native";
+import ActionPopover from "@/components/shared/ActionPopover";
 import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
 import Header from "@/components/shared/Header";
-import ActionPopover from "@/components/shared/ActionPopover";
 import { useCustomToast } from "@/components/shared/useCustomToast";
-import { PatientNote } from "@/services/database/migrations/v1/schema_v1";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
+import { Textarea, TextareaInput } from "@/components/ui/textarea";
+import { PatientContext } from "@/context/PatientContext";
+import {
+  createPatientNote,
+  deletePatientNote,
+  getPatientNotesByPatientId,
+  updatePatientNote,
+} from "@/services/core/PatientNoteService";
+import { PatientNote } from "@/services/database/migrations/v1/schema_v1";
+import { logger } from "@/services/logging/logger";
+import palette from "@/utils/theme/color";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  FlatList,
+  Keyboard,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Notes() {
   const { patient } = useContext(PatientContext);
@@ -42,14 +44,14 @@ export default function Notes() {
 
   async function fetchNotes() {
     if (!patient?.id) {
-      console.log("No patient id found");
+      logger.debug("No patient id found");
       return;
     }
     try {
       const notes = await getPatientNotesByPatientId(patient.id);
       setPatientNotes(notes);
     } catch (e) {
-      console.log(e);
+      logger.debug(`${e}`);
     }
   }
 

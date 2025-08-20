@@ -1,27 +1,29 @@
-import React, { useContext, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  TextInput,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Textarea, TextareaInput } from "@/components/ui/textarea";
-import palette from "@/utils/theme/color";
-import {
-  createPatientAllergy,
-  getPatientAllergiesByPatientId,
-  updatePatientAllergy,
-  deletePatientAllergy,
-} from "@/services/core/PatientAllergyService";
-import { PatientContext } from "@/context/PatientContext";
-import { Keyboard, TouchableWithoutFeedback } from "react-native";
+import ActionPopover from "@/components/shared/ActionPopover";
 import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
 import Header from "@/components/shared/Header";
-import ActionPopover from "@/components/shared/ActionPopover";
 import { useCustomToast } from "@/components/shared/useCustomToast";
+import { Textarea, TextareaInput } from "@/components/ui/textarea";
+import { PatientContext } from "@/context/PatientContext";
+import {
+  createPatientAllergy,
+  deletePatientAllergy,
+  getPatientAllergiesByPatientId,
+  updatePatientAllergy,
+} from "@/services/core/PatientAllergyService";
 import { PatientAllergy } from "@/services/database/migrations/v1/schema_v1";
+import { logger } from "@/services/logging/logger";
+import palette from "@/utils/theme/color";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  FlatList,
+  Keyboard,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Allergies() {
   const { patient } = useContext(PatientContext);
@@ -42,14 +44,14 @@ export default function Allergies() {
 
   async function fetchAllergies() {
     if (!patient?.id) {
-      console.log("No patient id found");
+      logger.debug("No patient id found");
       return;
     }
     try {
       const allergies = await getPatientAllergiesByPatientId(patient.id);
       setPatientAllergy(allergies);
     } catch (e) {
-      console.log(e);
+      logger.debug(`${e}`);
     }
   }
 

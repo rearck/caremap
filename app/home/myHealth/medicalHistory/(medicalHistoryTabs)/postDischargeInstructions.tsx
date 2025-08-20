@@ -1,31 +1,34 @@
-import React, { useContext, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  TextInput,
-  ScrollView,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Textarea, TextareaInput } from "@/components/ui/textarea";
-import palette from "@/utils/theme/color";
-import {
-  createDischargeInstruction,
-  getDischargeInstructionsByPatientId,
-  updateDischargeInstruction,
-  deleteDischargeInstruction,
-} from "@/services/core/DischargeInstructionService";
-import { PatientContext } from "@/context/PatientContext";
-import { Keyboard, TouchableWithoutFeedback } from "react-native";
+import ActionPopover from "@/components/shared/ActionPopover";
 import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
 import Header from "@/components/shared/Header";
-import ActionPopover from "@/components/shared/ActionPopover";
 import { useCustomToast } from "@/components/shared/useCustomToast";
-import { DischargeInstruction } from "@/services/database/migrations/v1/schema_v1";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
-import { KeyboardAvoidingView, Platform } from "react-native";
+import { Textarea, TextareaInput } from "@/components/ui/textarea";
+import { PatientContext } from "@/context/PatientContext";
+import {
+  createDischargeInstruction,
+  deleteDischargeInstruction,
+  getDischargeInstructionsByPatientId,
+  updateDischargeInstruction,
+} from "@/services/core/DischargeInstructionService";
+import { DischargeInstruction } from "@/services/database/migrations/v1/schema_v1";
+import { logger } from "@/services/logging/logger";
+import palette from "@/utils/theme/color";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PostDischargeInstructions() {
   const { patient } = useContext(PatientContext);
@@ -47,7 +50,7 @@ export default function PostDischargeInstructions() {
 
   async function fetchDischargeInstructions() {
     if (!patient?.id) {
-      console.log("No patient id found");
+      logger.debug("No patient id found");
       return;
     }
     try {
@@ -56,7 +59,7 @@ export default function PostDischargeInstructions() {
 
       setPatientDischargeInstructions(getDischargeInstructions);
     } catch (e) {
-      console.log(e);
+      logger.debug(`${e}`);
     }
   }
 

@@ -58,6 +58,7 @@ export default function TrackScreen() {
     });
   };
 
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* header */}

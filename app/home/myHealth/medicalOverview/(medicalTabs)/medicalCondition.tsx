@@ -1,22 +1,29 @@
-import React, { useContext, useEffect, useState } from "react";
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Textarea, TextareaInput } from "@/components/ui/textarea";
-import palette from "@/utils/theme/color";
-import {
-  createPatientCondition,
-  getPatientConditionsByPatientId,
-  updatePatientCondition,
-  deletePatientCondition,
-} from "@/services/core/PatientConditionService";
-import { PatientContext } from "@/context/PatientContext";
-import { Keyboard, TouchableWithoutFeedback } from "react-native";
-import { Spinner } from "@/components/ui/spinner";
+import ActionPopover from "@/components/shared/ActionPopover";
 import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
 import Header from "@/components/shared/Header";
-import ActionPopover from "@/components/shared/ActionPopover";
 import { useCustomToast } from "@/components/shared/useCustomToast";
+import { Spinner } from "@/components/ui/spinner";
+import { Textarea, TextareaInput } from "@/components/ui/textarea";
+import { PatientContext } from "@/context/PatientContext";
+import {
+  createPatientCondition,
+  deletePatientCondition,
+  getPatientConditionsByPatientId,
+  updatePatientCondition,
+} from "@/services/core/PatientConditionService";
 import { PatientCondition } from "@/services/database/migrations/v1/schema_v1";
+import { logger } from "@/services/logging/logger";
+import palette from "@/utils/theme/color";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  FlatList,
+  Keyboard,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const linkedHealthSystem = [
   "Attention Deficient and Hyperactivity Disorder (ADHD)",
@@ -42,7 +49,7 @@ export default function MedicalConditions() {
 
   const fetchConditions = async () => {
     if (!patient?.id) {
-      console.log("No patient id found");
+      logger.debug("No patient id found");
       return;
     }
     setLoading(true);
@@ -50,7 +57,7 @@ export default function MedicalConditions() {
       const conditions = await getPatientConditionsByPatientId(patient.id);
       setUserConditions(conditions);
     } catch (e) {
-      console.log(e);
+      logger.debug(`${e}`);
     } finally {
       setLoading(false);
     }
