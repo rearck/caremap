@@ -10,7 +10,7 @@ import {
 } from "@/services/core/TrackService";
 import { ROUTES } from "@/utils/route";
 import { useRouter } from "expo-router";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AddItem() {
@@ -22,6 +22,8 @@ export default function AddItem() {
   const [selectableCategories, setSelectableCategories] = useState<
     TrackCategoryWithSelectableItems[]
   >([]);
+  const selectableCategoriesRef = useRef<TrackCategoryWithSelectableItems[]>([]);
+  const initialCategoriesRef = useRef<TrackCategoryWithSelectableItems[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -41,6 +43,8 @@ export default function AddItem() {
         selectedDate
       );
 
+      selectableCategoriesRef.current = res;
+      initialCategoriesRef.current = res;
       setSelectableCategories(res);
     };
     loadSelectableItems();
@@ -54,42 +58,53 @@ export default function AddItem() {
       );
 
       const updatedGroup = { ...categoryGroup, items };
-
-      return prev.map((group, i) =>
+      const next = prev.map((group, i) =>
         i === categoryIndex ? updatedGroup : group
       );
+      selectableCategoriesRef.current = next;
+      return next;
     });
   };
 
   const handleSave = async () => {
+    if (isLoading) return;
     if (!user?.id) throw new Error("Authentication ERROR");
     if (!patient?.id) throw new Error("Authentication ERROR");
 
     setIsLoading(true);
 
     try {
-      const selected = [];
-      for (const categoryGroup of selectableCategories) {
-        for (const itemObj of categoryGroup.items) {
-          const actionPromise = itemObj.selected
-            ? addTrackItemOnDate(
-                itemObj.item.id,
-                user.id,
-                patient.id,
-                selectedDate
-              )
-            : removeTrackItemFromDate(
-                itemObj.item.id,
-                user.id,
-                patient.id,
-                selectedDate
-              );
+      const current = selectableCategoriesRef.current;
+      const initial = initialCategoriesRef.current;
 
-          selected.push(actionPromise);
+      const initialMap: Record<number, boolean> = {};
+      for (const group of initial) {
+        for (const it of group.items) {
+          initialMap[it.item.id] = !!it.selected;
         }
       }
 
-      await Promise.all(selected);
+      const toAdd: number[] = [];
+      const toRemove: number[] = [];
+      for (const group of current) {
+        for (const it of group.items) {
+          const wasSelected = initialMap[it.item.id] ?? false;
+          const isSelected = !!it.selected;
+          if (isSelected !== wasSelected) {
+            if (isSelected) toAdd.push(it.item.id);
+            else toRemove.push(it.item.id);
+          }
+        }
+      }
+
+      for (const itemId of toAdd) {
+        await addTrackItemOnDate(itemId, user.id, patient.id, selectedDate);
+      }
+      for (const itemId of toRemove) {
+        await removeTrackItemFromDate(itemId, user.id, patient.id, selectedDate);
+      }
+
+      initialCategoriesRef.current = selectableCategoriesRef.current;
 
       setRefreshData(true);
       router.back();
