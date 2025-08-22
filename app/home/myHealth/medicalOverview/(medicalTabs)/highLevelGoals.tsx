@@ -1,28 +1,29 @@
-import React, { useContext, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  TextInput,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
-import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
-import Header from "@/components/shared/Header";
-import { PatientContext } from "@/context/PatientContext";
-import { PatientGoal } from "@/services/database/migrations/v1/schema_v1";
-import {
-  createPatientGoal,
-  getPatientGoalsByPatientId,
-  updatePatientGoal,
-  deletePatientGoal,
-} from "@/services/core/PatientGoalService";
 import ActionPopover from "@/components/shared/ActionPopover";
 import { CustomAlertDialog } from "@/components/shared/CustomAlertDialog";
-import palette from "@/utils/theme/color";
+import Header from "@/components/shared/Header";
 import { useCustomToast } from "@/components/shared/useCustomToast";
+import { CalendarDaysIcon, Icon } from "@/components/ui/icon";
+import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
+import { PatientContext } from "@/context/PatientContext";
+import {
+  createPatientGoal,
+  deletePatientGoal,
+  getPatientGoalsByPatientId,
+  updatePatientGoal,
+} from "@/services/core/PatientGoalService";
+import { PatientGoal } from "@/services/database/migrations/v1/schema_v1";
+import { logger } from "@/services/logging/logger";
+import palette from "@/utils/theme/color";
+import React, { useContext, useEffect, useState } from "react";
+import {
+  FlatList,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const linkedGoals = [
   "Establish a consistent sleep schedule for better energy and recovery.",
@@ -47,14 +48,14 @@ export default function HighLevelGoals() {
 
   async function fetchGoals() {
     if (!patient?.id) {
-      console.log("No patient id found");
+      logger.debug("No patient id found");
       return;
     }
     try {
       const getUserGoals = await getPatientGoalsByPatientId(patient.id);
       setUserGoals(getUserGoals);
     } catch (error) {
-      console.log(error);
+      logger.debug(`${error}`);
     }
   }
 
