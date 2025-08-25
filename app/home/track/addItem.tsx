@@ -1,4 +1,5 @@
 import Header from "@/components/shared/Header";
+import { CheckIcon, Icon } from "@/components/ui/icon";
 import { PatientContext } from "@/context/PatientContext";
 import { TrackContext } from "@/context/TrackContext";
 import { UserContext } from "@/context/UserContext";
@@ -9,8 +10,10 @@ import {
   removeTrackItemFromDate,
 } from "@/services/core/TrackService";
 import { ROUTES } from "@/utils/route";
+import palette from "@/utils/theme/color";
 import { useRouter } from "expo-router";
 import React, { useContext, useEffect, useRef, useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AddItem() {
@@ -122,8 +125,56 @@ export default function AddItem() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      {/* header */}
-      <Header title="Add Item" />
+      <Header
+        title="Select care items to track"
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text className="text-white font-medium">Cancel</Text>
+          </TouchableOpacity>
+        }
+      />
+      <ScrollView contentContainerClassName="px-4 pb-12 pt-5">
+        {selectableCategories.map((categoryGroup, categoryIndex) => (
+          <View key={categoryGroup.category.id} className="mb-6">
+            <Text
+              style={{ color: palette.heading }}
+              className="font-bold text-xl mb-3"
+            >
+              {categoryGroup.category.name}
+            </Text>
+            {categoryGroup.items.map((itemObj, itemIndex) => (
+              <TouchableOpacity
+                key={itemObj.item.id}
+                onPress={() => toggleSelect(categoryIndex, itemIndex)}
+                className={`flex-row items-center justify-between border rounded-xl py-3 px-4 mb-2 
+                  ${
+                    itemObj.selected
+                      ? "bg-cyan-100 border-cyan-400"
+                      : "bg-gray-100 border-gray-300"
+                  }`}
+              >
+                <Text className="text-[15px]">{itemObj.item.name}</Text>
+                {itemObj.selected && (
+                  <Icon
+                    as={CheckIcon}
+                    size="xl"
+                    style={{ color: palette.primary }}
+                  />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        ))}
+
+        <TouchableOpacity
+          onPress={handleSave}
+          disabled={isLoading}
+          style={{ backgroundColor: palette.primary }}
+          className="rounded-lg py-3 items-center"
+        >
+          <Text className="text-white font-bold text-[16px]">Save</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </SafeAreaView>
   );
 }
