@@ -158,9 +158,10 @@ export interface Question {
   id: number;
   item_id: number;
   text: string;
-  type: 'boolean' | 'mcq' | 'msq' | 'numeric' | 'text';
+  type: "boolean" | "mcq" | "msq" | "numeric" | "text";
   instructions?: string;
   required: boolean;
+  summary_template?:string;
   created_date: Date;
   updated_date: Date;
 }

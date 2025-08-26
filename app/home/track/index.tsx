@@ -1,5 +1,7 @@
 import Header from "@/components/shared/Header";
 import TrackCalendar from "@/components/shared/track-shared-components/TrackCalender";
+import TrackCard from "@/components/shared/track-shared-components/TrackCard";
+
 import { Divider } from "@/components/ui/divider";
 import { PatientContext } from "@/context/PatientContext";
 import { TrackContext } from "@/context/TrackContext";
@@ -85,6 +87,36 @@ export default function TrackScreen() {
 
       <ScrollView contentContainerStyle={{ padding: 16 }}>
         {/* track card */}
+        {categories.length === 0 ? (
+          <Text className="text-gray-500">No items added for this date</Text>
+        ) : (
+          categories.map((cat) =>
+            cat.items.length > 0 ? (
+              <View key={cat.id} className="mb-6">
+                {/* Category title */}
+                <Text
+                  className="font-bold text-lg mb-2"
+                  style={{ color: palette.heading }}
+                >
+                  {cat.name}
+                </Text>
+
+                {/* Items under this category */}
+                {cat.items.map((itm) => (
+                  <TrackCard
+                    key={itm.item.id}
+                    item_id={itm.item.id}
+                    entry_id={itm.entry_id}
+                    item_name={itm.item.name}
+                    completed={itm.completed}
+                    total={itm.total}
+                    date={currentSelectedDate.format("MM-DD-YYYY")}
+                  />
+                ))}
+              </View>
+            ) : null
+          )
+        )}
       </ScrollView>
     </SafeAreaView>
   );
