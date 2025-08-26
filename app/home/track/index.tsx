@@ -1,13 +1,15 @@
 import Header from "@/components/shared/Header";
+import TrackCalendar from "@/components/shared/track-shared-components/TrackCalender";
 import { Divider } from "@/components/ui/divider";
 import { PatientContext } from "@/context/PatientContext";
 import { TrackContext } from "@/context/TrackContext";
 import { getTrackCategoriesWithItemsAndProgress } from "@/services/core/TrackService";
 import { ROUTES } from "@/utils/route";
+import palette from "@/utils/theme/color";
 import { useFocusEffect, useRouter } from "expo-router";
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function TrackScreen() {
@@ -54,43 +56,36 @@ export default function TrackScreen() {
 
   const handleAddItem = () => {
     router.push({
-      pathname: "/home/track/addItem",
+      pathname:"/home/track/addItem",
     });
   };
-
 
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* header */}
-      <Header title="Track" />
-      <TouchableOpacity
-        className="py-3 rounded-lg items-center"
-        onPress={handleAddItem}
-      >
-        <View className="bg-white px-3 py-1.5 rounded-lg">
-          <Text>Add Item</Text>
-        </View>
-      </TouchableOpacity>
-
-      <Divider className="my-0.5" />
-
-      <TouchableOpacity
-        className="py-3 rounded-lg items-center"
-        onPress={() =>
-          router.push({
-            pathname: "/home/track/questions/[itemId]",
-            params: {
-              itemId: "1",
-              itemName: "Track Item 01",
-              entryId: "2",
-            },
-          })
+     <Header
+        title="Track"
+        right={
+          <TouchableOpacity onPress={handleAddItem} className="px-2">
+            <Text className="text-white font-medium whitespace-nowrap">
+              Add item
+            </Text>
+          </TouchableOpacity>
         }
-      >
-        <View className="bg-white px-3 py-1.5 rounded-lg">
-          <Text>Questions Screen</Text>
-        </View>
-      </TouchableOpacity>
+      />
+
+      <View className="px-2">
+        <Divider className="bg-gray-300" />
+      </View>
+      {/* calendar */}
+      <TrackCalendar
+        selectedDate={currentSelectedDate}
+        onDateSelected={setCurrentSelectedDate}
+      />
+
+      <ScrollView contentContainerStyle={{ padding: 16 }}>
+        {/* track card */}
+      </ScrollView>
     </SafeAreaView>
   );
 }
