@@ -17,7 +17,6 @@ const dbReadyPromise = new Promise<SQLiteDatabase>((resolve) => {
 
 export const initializeDatabase = async (db: SQLiteDatabase): Promise<void> => {
     _db = db;
-    await _db.execAsync("PRAGMA foreign_keys = ON;");
     dbReadyResolver?.(db);
     logger.debug(`DB Path: "${_db.databasePath}"`);
     await runMigrations(_db);
@@ -55,4 +54,6 @@ export const runMigrations = async (db: SQLiteDatabase): Promise<void> => {
             await db.execAsync(`PRAGMA user_version = ${DB_VERSION}`);
         });
     }
+
+    await db.execAsync("PRAGMA foreign_keys = ON;");
 };

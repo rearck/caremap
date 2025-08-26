@@ -1,6 +1,7 @@
 import Header from "@/components/shared/Header";
 import TrackCalendar from "@/components/shared/track-shared-components/TrackCalender";
 import TrackCard from "@/components/shared/track-shared-components/TrackCard";
+
 import { Divider } from "@/components/ui/divider";
 import { PatientContext } from "@/context/PatientContext";
 import { TrackContext } from "@/context/TrackContext";
@@ -57,14 +58,14 @@ export default function TrackScreen() {
 
   const handleAddItem = () => {
     router.push({
-      pathname: "/home/track/addItem",
+      pathname:"/home/track/addItem",
     });
   };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* header */}
-      <Header
+     <Header
         title="Track"
         right={
           <TouchableOpacity onPress={handleAddItem} className="px-2">

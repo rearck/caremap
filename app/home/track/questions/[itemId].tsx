@@ -1,4 +1,5 @@
 import Header from "@/components/shared/Header";
+import QuestionRenderer from "@/components/shared/track-shared-components/QuestionRenderer";
 import { useCustomToast } from "@/components/shared/useCustomToast";
 import { PatientContext } from "@/context/PatientContext";
 import { TrackContext } from "@/context/TrackContext";
@@ -12,10 +13,11 @@ import {
   Question,
   ResponseOption,
 } from "@/services/database/migrations/v1/schema_v1";
-import { logger } from "@/services/logging/logger";
 import { ROUTES } from "@/utils/route";
+import palette from "@/utils/theme/color";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useContext, useEffect, useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function QuestionFlowScreen() {
@@ -31,8 +33,10 @@ export default function QuestionFlowScreen() {
   const { patient } = useContext(PatientContext);
   const { setRefreshData } = useContext(TrackContext);
 
+  // sampleQuestions
   const [questions, setQuestions] = useState<Question[]>([]);
 
+  // sampleResponse
   const [responseOptions, setResponseOptions] = useState<ResponseOption[]>([]);
 
   const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
@@ -98,6 +102,8 @@ export default function QuestionFlowScreen() {
     setCustomOptions((prev) => ({ ...prev, [question_id]: newOption }));
   };
 
+  
+
   const submitAnswers = async (responseObj: Record<number, any>) => {
     if (!user?.id) throw new Error("Authentication ERROR");
     if (!patient?.id) throw new Error("Authentication ERROR");
@@ -118,7 +124,7 @@ export default function QuestionFlowScreen() {
           const customQuesId = Number(customQuesIdStr);
 
           if (JSON.stringify(answerObj).includes(customVal)) {
-            logger.debug(
+            console.log(
               `Adding new option '${customVal}' for question id: ${customQuesId}`
             );
             await addOptionToQuestion(customQuesId, customVal);
@@ -132,10 +138,10 @@ export default function QuestionFlowScreen() {
           user.id,
           patient.id
         );
-        logger.debug(`Answer saved for question ${questionId}`);
+        console.log(`Answer saved for question ${questionId}`);
       }
 
-      logger.debug("All answers saved successfully.");
+      console.log("All answers saved successfully.");
     } catch (error) {
       console.error("Error saving answers:", error);
     }
@@ -156,6 +162,8 @@ export default function QuestionFlowScreen() {
       return;
     }
 
+    //compute answered count BEFORE navigating
+
     if (isLast) {
       // mark fully completed (ensure completed === total)
       await submitAnswers(answers);
@@ -170,7 +178,78 @@ export default function QuestionFlowScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <Header title={itemName} />
+      <Header
+        title={itemName}
+        right={
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text style={{ color: "white", fontWeight: "500" }}>Cancel</Text>
+          </TouchableOpacity>
+        }
+      />
+
+      {/* Content */}
+      {!currentQuestion ? (
+        <View className="flex-1 justify-center items-center px-4">
+          <Text className="text-gray-500 text-center">
+            No questions found for this item.
+          </Text>
+        </View>
+      ) : (
+        <>
+          {/* Scrollable area */}
+          <ScrollView
+            contentContainerStyle={{ padding: 20, paddingBottom: 100 }} // extra bottom padding so content doesn't hide under buttons
+          >
+            {currentQuestion.instructions && (
+              <Text className="text-sm text-gray-600 mb-2">
+                {currentQuestion.instructions}
+              </Text>
+            )}
+
+            <QuestionRenderer
+              question={currentQuestion}
+              answer={answers[currentQuestion.id]}
+              setAnswer={handleSetAnswer}
+              responses={currentOptions}
+              // To add custom options for MSQ type questions
+              setCustomOption={handleAddOption}
+            />
+          </ScrollView>
+
+          {/* Fixed bottom buttons */}
+          <View className="flex-row p-4 border-t border-gray-200 bg-white">
+            {/* Skip */}
+            {!currentQuestion.required && !isLast &&  (
+              <TouchableOpacity
+                className="flex-1 py-3 rounded-lg border border-gray-300 mr-2"
+                onPress={() => {
+                  setAnswers((prev) => ({
+                    ...prev,
+                    [currentQuestion.id]: null,
+                  }));
+                  
+                  setCurrentIndex((p) => p + 1);
+                }}
+              >
+                <Text className="text-center text-gray-500 font-medium">
+                  Skip
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Next/Submit */}
+            <TouchableOpacity
+              style={{ backgroundColor: palette.primary }}
+              className="flex-1 py-3 rounded-lg"
+              onPress={handleNext}
+            >
+              <Text className="text-white font-bold text-center">
+                {isLast ? "Submit" : "Next"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
     </SafeAreaView>
   );
 }
