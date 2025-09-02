@@ -1,5 +1,6 @@
 import { differenceInYears } from 'date-fns';
 import * as ImagePicker from 'expo-image-picker';
+import * as Linking from 'expo-linking';
 import { logger } from '@/services/logging/logger';
 import { Patient } from '@/services/database/migrations/v1/schema_v1';
 
@@ -50,8 +51,6 @@ export const pickImageFromLibrary = async (): Promise<ImagePickerResult> => {
     }
 };
 
-
-
 // Helper function to get current timestamp
 export function getCurrentTimestamp(): Date {
     return new Date();
@@ -70,8 +69,53 @@ export const calculateAge = (date: Date | undefined | null): number | null => {
 };
 
 // Function to get display name from patient object in the format "First Middle Last"
- export const getDisplayName = (patient: Patient): string => {
-    return `${patient.first_name} ${
-      patient.middle_name ? patient.middle_name + " " : ""
-    }${patient.last_name}`;
-  };
+export const getDisplayName = (patient: Patient): string => {
+    return `${patient.first_name} ${patient.middle_name ? patient.middle_name + " " : ""
+        }${patient.last_name}`;
+};
+
+// Helper function to convert a String to a Number
+export function toNumber(str: string): number | null {
+    const trimmed = str.trim();
+    if (trimmed === "") return null;
+
+    // Reject if it contains non-numeric characters (excluding . or -)
+    const validNumber = /^-?\d+(\.\d+)?$/.test(trimmed);
+    if (!validNumber) return null;
+
+    const num = Number(trimmed);
+    return isNaN(num) ? null : num;
+}
+
+// Helper function to make a phone call
+export const makePhoneCall = async (phoneNumber: string): Promise<void> => {
+    try {
+        const phoneUrl = `tel:${phoneNumber}`;
+        await Linking.openURL(phoneUrl);
+    } catch (error) {
+        logger.debug('Error making phone call:', error);
+        throw error;
+    }
+};
+
+// Helper function to send an email
+export const sendEmail = async (email: string): Promise<void> => {
+    try {
+        const emailUrl = `mailto:${email}`;
+        await Linking.openURL(emailUrl);
+    } catch (error) {
+        logger.debug('Error sending email:', error);
+        throw error;
+    }
+};
+
+// Helper function to send an SMS message
+export const sendMessage = async (phoneNumber: string): Promise<void> => {
+    try {
+        const smsUrl = `sms:${phoneNumber}`;
+        await Linking.openURL(smsUrl);
+    } catch (error) {
+        logger.debug('Error sending SMS:', error);
+        throw error;
+    }
+};
