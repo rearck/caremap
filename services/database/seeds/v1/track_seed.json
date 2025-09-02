@@ -16,28 +16,31 @@
       "item_id": 1,
       "text": "How many times did you need to take a rescue/as-needed medication in the past week?",
       "type": "numeric",
-      "required": true
+      "required": true,
+      "summary_template":"Medication was taken {{answer}} times."
     },
     {
       "id": 2,
       "item_id": 1,
       "text": "What is the name of the rescue/as-needed medication you took?",
       "type": "mcq",
-      "required": true
+      "required": true,
+      "summary_template":"Medication - {{answer}}"
     },
     {
       "id": 3,
       "item_id": 3,
       "text": "Did you exercise today?",
       "type": "boolean",
-      "required": false
+      "required": true,
+      "summary_template":"Exercise {{answer}}"
     },
     {
       "id": 4,
       "item_id": 3,
       "text": "What type of exercises did you do?",
       "type": "msq",
-      "required": true
+      "required": false
     },
     {
       "id": 5,

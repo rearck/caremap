@@ -21,7 +21,6 @@ export const alertTitleMap: Record<AlertType, string> = {
   w: 'Warning',
 };
 
-// Track module types
 export interface TrackCategoryWithItems extends TrackCategory {
   items: TrackItemWithProgress[];
 };
@@ -31,7 +30,7 @@ export interface TrackItemWithProgress {
   entry_id: number;
   completed: number;
   total: number;
-  started: boolean;
+  summaries?: string[];
 };
 
 export interface TrackItemSelectable {
